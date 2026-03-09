@@ -1,0 +1,156 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Cabinet Grotesk";
+  src: url("/assets/fonts/CabinetGrotesk-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/assets/fonts/Satoshi-Variable.woff2") format("woff2");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+
+    /* Dark Navy Enterprise theme */
+    --background: 0.16 0.022 255;
+    --foreground: 0.92 0.01 250;
+    --card: 0.19 0.025 255;
+    --card-foreground: 0.92 0.01 250;
+    --popover: 0.22 0.03 255;
+    --popover-foreground: 0.92 0.01 250;
+    --primary: 0.6 0.2 255;
+    --primary-foreground: 0.98 0 0;
+    --secondary: 0.24 0.03 255;
+    --secondary-foreground: 0.85 0.01 250;
+    --muted: 0.22 0.025 255;
+    --muted-foreground: 0.6 0.02 255;
+    --accent: 0.28 0.04 255;
+    --accent-foreground: 0.92 0.01 250;
+    --destructive: 0.6 0.22 25;
+    --destructive-foreground: 0.98 0 0;
+    --border: 0.28 0.04 255;
+    --input: 0.26 0.035 255;
+    --ring: 0.6 0.2 255;
+
+    /* Chart colors */
+    --chart-1: 0.6 0.2 255;
+    --chart-2: 0.65 0.18 160;
+    --chart-3: 0.7 0.17 55;
+    --chart-4: 0.65 0.2 30;
+    --chart-5: 0.6 0.18 300;
+
+    /* Sidebar */
+    --sidebar: 0.13 0.02 255;
+    --sidebar-foreground: 0.88 0.01 250;
+    --sidebar-primary: 0.6 0.2 255;
+    --sidebar-primary-foreground: 0.98 0 0;
+    --sidebar-accent: 0.22 0.035 255;
+    --sidebar-accent-foreground: 0.92 0.01 250;
+    --sidebar-border: 0.22 0.03 255;
+    --sidebar-ring: 0.6 0.2 255;
+
+    /* Status colors - custom tokens */
+    --status-open: 0.55 0.18 250;
+    --status-inprogress: 0.65 0.2 300;
+    --status-resolved: 0.62 0.18 145;
+    --status-closed: 0.5 0.02 250;
+
+    /* Priority colors */
+    --priority-critical: 0.6 0.22 25;
+    --priority-high: 0.65 0.18 50;
+    --priority-medium: 0.72 0.16 90;
+    --priority-low: 0.62 0.18 145;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Satoshi", sans-serif;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Cabinet Grotesk", sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer utilities {
+  .status-badge-open {
+    background-color: oklch(var(--status-open) / 0.15);
+    color: oklch(var(--status-open));
+    border: 1px solid oklch(var(--status-open) / 0.3);
+  }
+  .status-badge-inprogress {
+    background-color: oklch(var(--status-inprogress) / 0.15);
+    color: oklch(var(--status-inprogress));
+    border: 1px solid oklch(var(--status-inprogress) / 0.3);
+  }
+  .status-badge-resolved {
+    background-color: oklch(var(--status-resolved) / 0.15);
+    color: oklch(var(--status-resolved));
+    border: 1px solid oklch(var(--status-resolved) / 0.3);
+  }
+  .status-badge-closed {
+    background-color: oklch(var(--status-closed) / 0.15);
+    color: oklch(var(--status-closed));
+    border: 1px solid oklch(var(--status-closed) / 0.3);
+  }
+  .priority-badge-critical {
+    background-color: oklch(var(--priority-critical) / 0.15);
+    color: oklch(var(--priority-critical));
+    border: 1px solid oklch(var(--priority-critical) / 0.3);
+  }
+  .priority-badge-high {
+    background-color: oklch(var(--priority-high) / 0.15);
+    color: oklch(var(--priority-high));
+    border: 1px solid oklch(var(--priority-high) / 0.3);
+  }
+  .priority-badge-medium {
+    background-color: oklch(var(--priority-medium) / 0.15);
+    color: oklch(var(--priority-medium));
+    border: 1px solid oklch(var(--priority-medium) / 0.3);
+  }
+  .priority-badge-low {
+    background-color: oklch(var(--priority-low) / 0.15);
+    color: oklch(var(--priority-low));
+    border: 1px solid oklch(var(--priority-low) / 0.3);
+  }
+
+  .nav-link-active {
+    background-color: oklch(var(--primary) / 0.15);
+    color: oklch(var(--primary));
+    border-left: 3px solid oklch(var(--primary));
+  }
+
+  .glass-card {
+    background: oklch(var(--card) / 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid oklch(var(--border) / 0.6);
+  }
+
+  .stat-card-glow {
+    box-shadow: 0 0 20px oklch(var(--primary) / 0.1);
+  }
+}
