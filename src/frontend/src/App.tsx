@@ -21,13 +21,16 @@ import { LoginPage } from "./pages/LoginPage";
 import { ProblemDetailPage } from "./pages/ProblemDetailPage";
 import { ProblemsPage } from "./pages/ProblemsPage";
 import { ProfilePage } from "./pages/ProfilePage";
+import { ReportsPage } from "./pages/ReportsPage";
+import { SLAPage } from "./pages/SLAPage";
 import { SOPsPage } from "./pages/SOPsPage";
 import { ServiceCatalogPage } from "./pages/ServiceCatalogPage";
+import { SettingsPage } from "./pages/SettingsPage";
 import { TicketDetailPage } from "./pages/TicketDetailPage";
 import { TicketsPage } from "./pages/TicketsPage";
 import { UsersPage } from "./pages/UsersPage";
 
-// ── Auth Guard Component ────────────────────────────────────────
+// ── Auth Guard Component ───────────────────────────────────────────────────
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { identity, isInitializing } = useInternetIdentity();
@@ -57,7 +60,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// ── Role Guard Component ────────────────────────────────────────
+// ── Role Guard Component ──────────────────────────────────────────────────
 
 function RoleGuard({
   children,
@@ -84,7 +87,7 @@ function RoleGuard({
   return <>{children}</>;
 }
 
-// ── Routes ──────────────────────────────────────────────────────
+// ── Routes ─────────────────────────────────────────────────────────────
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -263,6 +266,36 @@ const sopsRoute = createRoute({
   ),
 });
 
+const slaRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/sla",
+  component: () => (
+    <AuthGuard>
+      <SLAPage />
+    </AuthGuard>
+  ),
+});
+
+const reportsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/reports",
+  component: () => (
+    <AuthGuard>
+      <ReportsPage />
+    </AuthGuard>
+  ),
+});
+
+const settingsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/settings",
+  component: () => (
+    <AuthGuard>
+      <SettingsPage />
+    </AuthGuard>
+  ),
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   dashboardRoute,
@@ -279,6 +312,9 @@ const routeTree = rootRoute.addChildren([
   serviceCatalogRoute,
   knowledgeBaseRoute,
   sopsRoute,
+  slaRoute,
+  reportsRoute,
+  settingsRoute,
   usersRoute,
   profileRoute,
 ]);
@@ -291,7 +327,7 @@ declare module "@tanstack/react-router" {
   }
 }
 
-// ── App ─────────────────────────────────────────────────────────
+// ── App ───────────────────────────────────────────────────────────────
 
 export default function App() {
   return <RouterProvider router={router} />;

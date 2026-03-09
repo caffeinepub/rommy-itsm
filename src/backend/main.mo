@@ -10,10 +10,10 @@ import Nat "mo:core/Nat";
 import List "mo:core/List";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
-import Migration "migration";
+
 
 // Apply migration on upgrade via actor's with clause
-(with migration = Migration.run)
+
 actor {
   // ====================
   // Types

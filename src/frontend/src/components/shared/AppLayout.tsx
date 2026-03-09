@@ -5,14 +5,17 @@ import { Separator } from "@/components/ui/separator";
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   AlertTriangle,
+  BarChart3,
   BookOpen,
   ChevronLeft,
+  Clock,
   FileText,
   GitBranch,
   LayoutDashboard,
   LogOut,
   Menu,
   Package,
+  Settings,
   Shield,
   ShoppingBag,
   ShoppingCart,
@@ -31,6 +34,7 @@ interface NavItem {
   icon: React.ReactNode;
   ocid: string;
   roles?: UserRole[];
+  group?: string;
 }
 
 const navItems: NavItem[] = [
@@ -39,54 +43,77 @@ const navItems: NavItem[] = [
     label: "Dashboard",
     icon: <LayoutDashboard className="h-4 w-4" />,
     ocid: "nav.dashboard_link",
+    group: "main",
   },
   {
     to: "/incidents",
     label: "Incidents",
     icon: <AlertTriangle className="h-4 w-4" />,
     ocid: "nav.incidents_link",
+    group: "tickets",
   },
   {
     to: "/service-requests",
     label: "Service Requests",
     icon: <ShoppingCart className="h-4 w-4" />,
     ocid: "nav.service_requests_link",
+    group: "tickets",
   },
   {
     to: "/problems",
     label: "Problems",
     icon: <Zap className="h-4 w-4" />,
     ocid: "nav.problems_link",
+    group: "tickets",
   },
   {
     to: "/changes",
     label: "Change Management",
     icon: <GitBranch className="h-4 w-4" />,
     ocid: "nav.changes_link",
+    group: "tickets",
   },
   {
     to: "/assets",
     label: "Assets (CMDB)",
     icon: <Package className="h-4 w-4" />,
     ocid: "nav.assets_link",
+    group: "catalog",
   },
   {
     to: "/service-catalog",
     label: "Service Catalog",
     icon: <ShoppingBag className="h-4 w-4" />,
     ocid: "nav.service_catalog_link",
+    group: "catalog",
   },
   {
     to: "/knowledge-base",
     label: "Knowledge Base",
     icon: <BookOpen className="h-4 w-4" />,
     ocid: "nav.knowledge_base_link",
+    group: "catalog",
   },
   {
     to: "/sops",
     label: "SOPs & Process",
     icon: <FileText className="h-4 w-4" />,
     ocid: "nav.sops_link",
+    group: "catalog",
+  },
+  {
+    to: "/sla",
+    label: "SLA Management",
+    icon: <Clock className="h-4 w-4" />,
+    ocid: "nav.sla_link",
+    group: "analytics",
+  },
+  {
+    to: "/reports",
+    label: "Reports",
+    icon: <BarChart3 className="h-4 w-4" />,
+    ocid: "nav.reports_link",
+    group: "analytics",
   },
   {
     to: "/users",
@@ -94,14 +121,32 @@ const navItems: NavItem[] = [
     icon: <Users className="h-4 w-4" />,
     ocid: "nav.users_link",
     roles: [UserRole.Manager, UserRole.MasterAdmin],
+    group: "admin",
+  },
+  {
+    to: "/settings",
+    label: "Settings",
+    icon: <Settings className="h-4 w-4" />,
+    ocid: "nav.settings_link",
+    roles: [UserRole.MasterAdmin],
+    group: "admin",
   },
   {
     to: "/profile",
     label: "Profile",
     icon: <User className="h-4 w-4" />,
     ocid: "nav.profile_link",
+    group: "admin",
   },
 ];
+
+const groupLabels: Record<string, string> = {
+  main: "",
+  tickets: "TICKETS",
+  catalog: "CATALOG",
+  analytics: "ANALYTICS",
+  admin: "ADMIN",
+};
 
 const roleLabels: Record<UserRole, string> = {
   [UserRole.EndUser]: "End User",
@@ -143,6 +188,9 @@ export function AppLayout({ children, title }: AppLayoutProps) {
       !item.roles || (profile?.role && item.roles.includes(profile.role)),
   );
 
+  // Group the nav items
+  const groups = ["main", "tickets", "catalog", "analytics", "admin"];
+
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Sidebar */}
@@ -180,27 +228,54 @@ export function AppLayout({ children, title }: AppLayoutProps) {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
-          {visibleNav.map((item) => {
-            const isActive = location.pathname === item.to;
+        <nav className="flex-1 py-3 px-2 overflow-y-auto">
+          {groups.map((group) => {
+            const groupItems = visibleNav.filter(
+              (item) => item.group === group,
+            );
+            if (groupItems.length === 0) return null;
+            const label = groupLabels[group];
             return (
-              <Link
-                key={item.to}
-                to={item.to}
-                data-ocid={item.ocid}
-                className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150 group ${
-                  isActive
-                    ? "nav-link-active"
-                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                } ${collapsed ? "justify-center px-2" : ""}`}
-              >
-                <span
-                  className={`flex-shrink-0 ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-sidebar-foreground"}`}
-                >
-                  {item.icon}
-                </span>
-                {!collapsed && <span className="truncate">{item.label}</span>}
-              </Link>
+              <div key={group} className="mb-1">
+                {!collapsed && label && (
+                  <p className="px-3 py-1.5 text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-widest">
+                    {label}
+                  </p>
+                )}
+                {collapsed && label && (
+                  <div className="my-1 border-t border-sidebar-border/50" />
+                )}
+                <div className="space-y-0.5">
+                  {groupItems.map((item) => {
+                    const isActive = location.pathname === item.to;
+                    return (
+                      <Link
+                        key={item.to}
+                        to={item.to}
+                        data-ocid={item.ocid}
+                        className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all duration-150 group ${
+                          isActive
+                            ? "nav-link-active"
+                            : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        } ${collapsed ? "justify-center px-2" : ""}`}
+                      >
+                        <span
+                          className={`flex-shrink-0 ${
+                            isActive
+                              ? "text-primary"
+                              : "text-muted-foreground group-hover:text-sidebar-foreground"
+                          }`}
+                        >
+                          {item.icon}
+                        </span>
+                        {!collapsed && (
+                          <span className="truncate">{item.label}</span>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
             );
           })}
         </nav>
