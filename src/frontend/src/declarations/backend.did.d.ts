@@ -10,6 +10,84 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export type ApprovalDecision = { 'Approved' : null } |
+  { 'Rejected' : null };
+export interface ApprovalRecord {
+  'decision' : ApprovalDecision,
+  'approverId' : Principal,
+  'comment' : [] | [string],
+  'decidedAt' : Time,
+}
+export interface Asset {
+  'id' : bigint,
+  'status' : AssetStatus,
+  'model' : [] | [string],
+  'manufacturer' : [] | [string],
+  'assignedTo' : [] | [Principal],
+  'purchaseDate' : [] | [Time],
+  'cost' : [] | [bigint],
+  'name' : string,
+  'createdAt' : Time,
+  'description' : [] | [string],
+  'updatedAt' : Time,
+  'serialNumber' : [] | [string],
+  'warrantyExpiry' : [] | [Time],
+  'assetType' : AssetType,
+  'assetTag' : string,
+  'location' : [] | [string],
+}
+export interface AssetFilter {
+  'status' : [] | [AssetStatus],
+  'assignedTo' : [] | [Principal],
+  'assetType' : [] | [AssetType],
+}
+export type AssetStatus = { 'Disposed' : null } |
+  { 'Inactive' : null } |
+  { 'Active' : null } |
+  { 'Maintenance' : null } |
+  { 'Retired' : null };
+export type AssetType = { 'Network' : null } |
+  { 'Hardware' : null } |
+  { 'Software' : null } |
+  { 'Other' : null } |
+  { 'Service' : null };
+export interface ChangeFilter {
+  'status' : [] | [ChangeStatus],
+  'changeType' : [] | [ChangeType],
+  'priority' : [] | [TicketPriority],
+}
+export interface ChangeRequest {
+  'id' : bigint,
+  'status' : ChangeStatus,
+  'impact' : ImpactLevel,
+  'plannedEnd' : [] | [Time],
+  'title' : string,
+  'assigneeId' : [] | [Principal],
+  'changeType' : ChangeType,
+  'createdAt' : Time,
+  'risk' : RiskLevel,
+  'description' : string,
+  'approverIds' : Array<Principal>,
+  'updatedAt' : Time,
+  'category' : string,
+  'plannedStart' : Time,
+  'priority' : TicketPriority,
+  'comments' : Array<Comment>,
+  'actualEnd' : [] | [Time],
+  'approvals' : Array<ApprovalRecord>,
+  'requesterId' : Principal,
+  'actualStart' : [] | [Time],
+}
+export type ChangeStatus = { 'Approved' : null } |
+  { 'Draft' : null } |
+  { 'Rejected' : null } |
+  { 'Cancelled' : null } |
+  { 'InProgress' : null } |
+  { 'SubmittedForApproval' : null } |
+  { 'Completed' : null };
+export type ChangeType = { 'Normal' : null } |
+  { 'Emergency' : null } |
+  { 'Standard' : null };
 export interface Comment {
   'id' : bigint,
   'authorId' : Principal,
@@ -19,17 +97,58 @@ export interface Comment {
 export interface DashboardStats {
   'incidentInProgress' : bigint,
   'serviceRequestInProgress' : bigint,
+  'changeCompleted' : bigint,
   'serviceRequestResolved' : bigint,
   'incidentClosed' : bigint,
+  'problemResolved' : bigint,
   'incidentResolved' : bigint,
   'totalResolved' : bigint,
+  'problemOpen' : bigint,
   'totalOpen' : bigint,
+  'changeInProgress' : bigint,
+  'problemInAnalysis' : bigint,
+  'assetInactive' : bigint,
   'totalInProgress' : bigint,
+  'assetActive' : bigint,
+  'changePendingApproval' : bigint,
+  'assetMaintenance' : bigint,
   'serviceRequestClosed' : bigint,
   'totalClosed' : bigint,
   'serviceRequestOpen' : bigint,
   'incidentOpen' : bigint,
 }
+export type ImpactLevel = { 'Low' : null } |
+  { 'High' : null } |
+  { 'Medium' : null };
+export interface ProblemFilter {
+  'status' : [] | [ProblemStatus],
+  'category' : [] | [string],
+  'priority' : [] | [TicketPriority],
+}
+export interface ProblemRecord {
+  'id' : bigint,
+  'status' : ProblemStatus,
+  'title' : string,
+  'assigneeId' : [] | [Principal],
+  'linkedIncidentIds' : Array<bigint>,
+  'createdAt' : Time,
+  'description' : string,
+  'workaround' : [] | [string],
+  'updatedAt' : Time,
+  'reporterId' : Principal,
+  'category' : string,
+  'priority' : TicketPriority,
+  'comments' : Array<Comment>,
+  'rootCause' : [] | [string],
+}
+export type ProblemStatus = { 'InAnalysis' : null } |
+  { 'Closed' : null } |
+  { 'RootCauseFound' : null } |
+  { 'Identified' : null } |
+  { 'Resolved' : null };
+export type RiskLevel = { 'Low' : null } |
+  { 'High' : null } |
+  { 'Medium' : null };
 export interface Ticket {
   'id' : bigint,
   'status' : TicketStatus,
@@ -84,23 +203,105 @@ export type UserRole__1 = { 'admin' : null } |
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'addComment' : ActorMethod<[bigint, string], bigint>,
+  'addCommentToChange' : ActorMethod<[bigint, string], bigint>,
+  'addCommentToProblem' : ActorMethod<[bigint, string], bigint>,
+  'approveChange' : ActorMethod<[bigint, [] | [string]], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole__1], undefined>,
   'assignTicket' : ActorMethod<[bigint, Principal], undefined>,
+  'createAsset' : ActorMethod<
+    [
+      string,
+      AssetType,
+      AssetStatus,
+      [] | [string],
+      [] | [string],
+      [] | [string],
+      string,
+      [] | [string],
+      [] | [Time],
+      [] | [Time],
+      [] | [bigint],
+      [] | [string],
+    ],
+    bigint
+  >,
+  'createChangeRequest' : ActorMethod<
+    [
+      string,
+      string,
+      string,
+      ChangeType,
+      TicketPriority,
+      ImpactLevel,
+      RiskLevel,
+      Array<Principal>,
+      Time,
+      [] | [Time],
+    ],
+    bigint
+  >,
+  'createProblem' : ActorMethod<
+    [string, string, string, TicketPriority],
+    bigint
+  >,
   'createTicket' : ActorMethod<
     [TicketType, string, string, string, TicketPriority],
     bigint
   >,
+  'deleteAsset' : ActorMethod<[bigint], undefined>,
   'getAllUsers' : ActorMethod<[], Array<User>>,
+  'getAsset' : ActorMethod<[bigint], Asset>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole__1>,
+  'getChangeRequest' : ActorMethod<[bigint], ChangeRequest>,
   'getDashboardStats' : ActorMethod<[], DashboardStats>,
   'getMyProfile' : ActorMethod<[], [] | [User]>,
+  'getProblem' : ActorMethod<[bigint], ProblemRecord>,
   'getTicket' : ActorMethod<[bigint], Ticket>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'listAssets' : ActorMethod<[AssetFilter], Array<Asset>>,
+  'listChangeRequests' : ActorMethod<[ChangeFilter], Array<ChangeRequest>>,
+  'listProblems' : ActorMethod<[ProblemFilter], Array<ProblemRecord>>,
   'listTickets' : ActorMethod<[TicketFilter], Array<Ticket>>,
   'registerUser' : ActorMethod<[string, string], undefined>,
+  'rejectChange' : ActorMethod<[bigint, [] | [string]], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'submitChangeForApproval' : ActorMethod<[bigint], undefined>,
+  'updateAsset' : ActorMethod<
+    [
+      bigint,
+      string,
+      AssetType,
+      AssetStatus,
+      [] | [string],
+      [] | [string],
+      [] | [string],
+      string,
+      [] | [string],
+      [] | [Principal],
+      [] | [Time],
+      [] | [Time],
+      [] | [bigint],
+      [] | [string],
+    ],
+    undefined
+  >,
+  'updateAssetStatus' : ActorMethod<[bigint, AssetStatus], undefined>,
+  'updateChangeStatus' : ActorMethod<[bigint, ChangeStatus], undefined>,
+  'updateProblemDetails' : ActorMethod<
+    [
+      bigint,
+      string,
+      string,
+      [] | [string],
+      [] | [string],
+      [] | [Principal],
+      Array<bigint>,
+    ],
+    undefined
+  >,
+  'updateProblemStatus' : ActorMethod<[bigint, ProblemStatus], undefined>,
   'updateTicketStatus' : ActorMethod<[bigint, TicketStatus], undefined>,
   'updateUserRole' : ActorMethod<[Principal, UserRole], undefined>,
 }

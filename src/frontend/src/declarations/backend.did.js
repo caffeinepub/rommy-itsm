@@ -13,9 +13,25 @@ export const UserRole__1 = IDL.Variant({
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
-export const TicketType = IDL.Variant({
-  'ServiceRequest' : IDL.Null,
-  'Incident' : IDL.Null,
+export const AssetType = IDL.Variant({
+  'Network' : IDL.Null,
+  'Hardware' : IDL.Null,
+  'Software' : IDL.Null,
+  'Other' : IDL.Null,
+  'Service' : IDL.Null,
+});
+export const AssetStatus = IDL.Variant({
+  'Disposed' : IDL.Null,
+  'Inactive' : IDL.Null,
+  'Active' : IDL.Null,
+  'Maintenance' : IDL.Null,
+  'Retired' : IDL.Null,
+});
+export const Time = IDL.Int;
+export const ChangeType = IDL.Variant({
+  'Normal' : IDL.Null,
+  'Emergency' : IDL.Null,
+  'Standard' : IDL.Null,
 });
 export const TicketPriority = IDL.Variant({
   'Low' : IDL.Null,
@@ -23,7 +39,20 @@ export const TicketPriority = IDL.Variant({
   'Medium' : IDL.Null,
   'Critical' : IDL.Null,
 });
-export const Time = IDL.Int;
+export const ImpactLevel = IDL.Variant({
+  'Low' : IDL.Null,
+  'High' : IDL.Null,
+  'Medium' : IDL.Null,
+});
+export const RiskLevel = IDL.Variant({
+  'Low' : IDL.Null,
+  'High' : IDL.Null,
+  'Medium' : IDL.Null,
+});
+export const TicketType = IDL.Variant({
+  'ServiceRequest' : IDL.Null,
+  'Incident' : IDL.Null,
+});
 export const UserRole = IDL.Variant({
   'ITAgent' : IDL.Null,
   'Manager' : IDL.Null,
@@ -37,37 +66,128 @@ export const User = IDL.Record({
   'role' : UserRole,
   'department' : IDL.Text,
 });
+export const Asset = IDL.Record({
+  'id' : IDL.Nat,
+  'status' : AssetStatus,
+  'model' : IDL.Opt(IDL.Text),
+  'manufacturer' : IDL.Opt(IDL.Text),
+  'assignedTo' : IDL.Opt(IDL.Principal),
+  'purchaseDate' : IDL.Opt(Time),
+  'cost' : IDL.Opt(IDL.Nat),
+  'name' : IDL.Text,
+  'createdAt' : Time,
+  'description' : IDL.Opt(IDL.Text),
+  'updatedAt' : Time,
+  'serialNumber' : IDL.Opt(IDL.Text),
+  'warrantyExpiry' : IDL.Opt(Time),
+  'assetType' : AssetType,
+  'assetTag' : IDL.Text,
+  'location' : IDL.Opt(IDL.Text),
+});
 export const UserProfile = IDL.Record({
   'name' : IDL.Text,
   'createdAt' : Time,
   'role' : UserRole,
   'department' : IDL.Text,
 });
-export const DashboardStats = IDL.Record({
-  'incidentInProgress' : IDL.Nat,
-  'serviceRequestInProgress' : IDL.Nat,
-  'serviceRequestResolved' : IDL.Nat,
-  'incidentClosed' : IDL.Nat,
-  'incidentResolved' : IDL.Nat,
-  'totalResolved' : IDL.Nat,
-  'totalOpen' : IDL.Nat,
-  'totalInProgress' : IDL.Nat,
-  'serviceRequestClosed' : IDL.Nat,
-  'totalClosed' : IDL.Nat,
-  'serviceRequestOpen' : IDL.Nat,
-  'incidentOpen' : IDL.Nat,
-});
-export const TicketStatus = IDL.Variant({
-  'Open' : IDL.Null,
-  'Closed' : IDL.Null,
+export const ChangeStatus = IDL.Variant({
+  'Approved' : IDL.Null,
+  'Draft' : IDL.Null,
+  'Rejected' : IDL.Null,
+  'Cancelled' : IDL.Null,
   'InProgress' : IDL.Null,
-  'Resolved' : IDL.Null,
+  'SubmittedForApproval' : IDL.Null,
+  'Completed' : IDL.Null,
 });
 export const Comment = IDL.Record({
   'id' : IDL.Nat,
   'authorId' : IDL.Principal,
   'createdAt' : Time,
   'text' : IDL.Text,
+});
+export const ApprovalDecision = IDL.Variant({
+  'Approved' : IDL.Null,
+  'Rejected' : IDL.Null,
+});
+export const ApprovalRecord = IDL.Record({
+  'decision' : ApprovalDecision,
+  'approverId' : IDL.Principal,
+  'comment' : IDL.Opt(IDL.Text),
+  'decidedAt' : Time,
+});
+export const ChangeRequest = IDL.Record({
+  'id' : IDL.Nat,
+  'status' : ChangeStatus,
+  'impact' : ImpactLevel,
+  'plannedEnd' : IDL.Opt(Time),
+  'title' : IDL.Text,
+  'assigneeId' : IDL.Opt(IDL.Principal),
+  'changeType' : ChangeType,
+  'createdAt' : Time,
+  'risk' : RiskLevel,
+  'description' : IDL.Text,
+  'approverIds' : IDL.Vec(IDL.Principal),
+  'updatedAt' : Time,
+  'category' : IDL.Text,
+  'plannedStart' : Time,
+  'priority' : TicketPriority,
+  'comments' : IDL.Vec(Comment),
+  'actualEnd' : IDL.Opt(Time),
+  'approvals' : IDL.Vec(ApprovalRecord),
+  'requesterId' : IDL.Principal,
+  'actualStart' : IDL.Opt(Time),
+});
+export const DashboardStats = IDL.Record({
+  'incidentInProgress' : IDL.Nat,
+  'serviceRequestInProgress' : IDL.Nat,
+  'changeCompleted' : IDL.Nat,
+  'serviceRequestResolved' : IDL.Nat,
+  'incidentClosed' : IDL.Nat,
+  'problemResolved' : IDL.Nat,
+  'incidentResolved' : IDL.Nat,
+  'totalResolved' : IDL.Nat,
+  'problemOpen' : IDL.Nat,
+  'totalOpen' : IDL.Nat,
+  'changeInProgress' : IDL.Nat,
+  'problemInAnalysis' : IDL.Nat,
+  'assetInactive' : IDL.Nat,
+  'totalInProgress' : IDL.Nat,
+  'assetActive' : IDL.Nat,
+  'changePendingApproval' : IDL.Nat,
+  'assetMaintenance' : IDL.Nat,
+  'serviceRequestClosed' : IDL.Nat,
+  'totalClosed' : IDL.Nat,
+  'serviceRequestOpen' : IDL.Nat,
+  'incidentOpen' : IDL.Nat,
+});
+export const ProblemStatus = IDL.Variant({
+  'InAnalysis' : IDL.Null,
+  'Closed' : IDL.Null,
+  'RootCauseFound' : IDL.Null,
+  'Identified' : IDL.Null,
+  'Resolved' : IDL.Null,
+});
+export const ProblemRecord = IDL.Record({
+  'id' : IDL.Nat,
+  'status' : ProblemStatus,
+  'title' : IDL.Text,
+  'assigneeId' : IDL.Opt(IDL.Principal),
+  'linkedIncidentIds' : IDL.Vec(IDL.Nat),
+  'createdAt' : Time,
+  'description' : IDL.Text,
+  'workaround' : IDL.Opt(IDL.Text),
+  'updatedAt' : Time,
+  'reporterId' : IDL.Principal,
+  'category' : IDL.Text,
+  'priority' : TicketPriority,
+  'comments' : IDL.Vec(Comment),
+  'rootCause' : IDL.Opt(IDL.Text),
+});
+export const TicketStatus = IDL.Variant({
+  'Open' : IDL.Null,
+  'Closed' : IDL.Null,
+  'InProgress' : IDL.Null,
+  'Resolved' : IDL.Null,
 });
 export const Ticket = IDL.Record({
   'id' : IDL.Nat,
@@ -83,6 +203,21 @@ export const Ticket = IDL.Record({
   'priority' : TicketPriority,
   'comments' : IDL.Vec(Comment),
 });
+export const AssetFilter = IDL.Record({
+  'status' : IDL.Opt(AssetStatus),
+  'assignedTo' : IDL.Opt(IDL.Principal),
+  'assetType' : IDL.Opt(AssetType),
+});
+export const ChangeFilter = IDL.Record({
+  'status' : IDL.Opt(ChangeStatus),
+  'changeType' : IDL.Opt(ChangeType),
+  'priority' : IDL.Opt(TicketPriority),
+});
+export const ProblemFilter = IDL.Record({
+  'status' : IDL.Opt(ProblemStatus),
+  'category' : IDL.Opt(IDL.Text),
+  'priority' : IDL.Opt(TicketPriority),
+});
 export const TicketFilter = IDL.Record({
   'status' : IDL.Opt(TicketStatus),
   'assigneeId' : IDL.Opt(IDL.Principal),
@@ -93,18 +228,64 @@ export const TicketFilter = IDL.Record({
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'addComment' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Nat], []),
+  'addCommentToChange' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Nat], []),
+  'addCommentToProblem' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Nat], []),
+  'approveChange' : IDL.Func([IDL.Nat, IDL.Opt(IDL.Text)], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole__1], [], []),
   'assignTicket' : IDL.Func([IDL.Nat, IDL.Principal], [], []),
+  'createAsset' : IDL.Func(
+      [
+        IDL.Text,
+        AssetType,
+        AssetStatus,
+        IDL.Opt(IDL.Text),
+        IDL.Opt(IDL.Text),
+        IDL.Opt(IDL.Text),
+        IDL.Text,
+        IDL.Opt(IDL.Text),
+        IDL.Opt(Time),
+        IDL.Opt(Time),
+        IDL.Opt(IDL.Nat),
+        IDL.Opt(IDL.Text),
+      ],
+      [IDL.Nat],
+      [],
+    ),
+  'createChangeRequest' : IDL.Func(
+      [
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
+        ChangeType,
+        TicketPriority,
+        ImpactLevel,
+        RiskLevel,
+        IDL.Vec(IDL.Principal),
+        Time,
+        IDL.Opt(Time),
+      ],
+      [IDL.Nat],
+      [],
+    ),
+  'createProblem' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text, TicketPriority],
+      [IDL.Nat],
+      [],
+    ),
   'createTicket' : IDL.Func(
       [TicketType, IDL.Text, IDL.Text, IDL.Text, TicketPriority],
       [IDL.Nat],
       [],
     ),
+  'deleteAsset' : IDL.Func([IDL.Nat], [], []),
   'getAllUsers' : IDL.Func([], [IDL.Vec(User)], ['query']),
+  'getAsset' : IDL.Func([IDL.Nat], [Asset], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole__1], ['query']),
+  'getChangeRequest' : IDL.Func([IDL.Nat], [ChangeRequest], ['query']),
   'getDashboardStats' : IDL.Func([], [DashboardStats], ['query']),
   'getMyProfile' : IDL.Func([], [IDL.Opt(User)], ['query']),
+  'getProblem' : IDL.Func([IDL.Nat], [ProblemRecord], ['query']),
   'getTicket' : IDL.Func([IDL.Nat], [Ticket], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
@@ -112,9 +293,58 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'listAssets' : IDL.Func([AssetFilter], [IDL.Vec(Asset)], ['query']),
+  'listChangeRequests' : IDL.Func(
+      [ChangeFilter],
+      [IDL.Vec(ChangeRequest)],
+      ['query'],
+    ),
+  'listProblems' : IDL.Func(
+      [ProblemFilter],
+      [IDL.Vec(ProblemRecord)],
+      ['query'],
+    ),
   'listTickets' : IDL.Func([TicketFilter], [IDL.Vec(Ticket)], ['query']),
   'registerUser' : IDL.Func([IDL.Text, IDL.Text], [], []),
+  'rejectChange' : IDL.Func([IDL.Nat, IDL.Opt(IDL.Text)], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'submitChangeForApproval' : IDL.Func([IDL.Nat], [], []),
+  'updateAsset' : IDL.Func(
+      [
+        IDL.Nat,
+        IDL.Text,
+        AssetType,
+        AssetStatus,
+        IDL.Opt(IDL.Text),
+        IDL.Opt(IDL.Text),
+        IDL.Opt(IDL.Text),
+        IDL.Text,
+        IDL.Opt(IDL.Text),
+        IDL.Opt(IDL.Principal),
+        IDL.Opt(Time),
+        IDL.Opt(Time),
+        IDL.Opt(IDL.Nat),
+        IDL.Opt(IDL.Text),
+      ],
+      [],
+      [],
+    ),
+  'updateAssetStatus' : IDL.Func([IDL.Nat, AssetStatus], [], []),
+  'updateChangeStatus' : IDL.Func([IDL.Nat, ChangeStatus], [], []),
+  'updateProblemDetails' : IDL.Func(
+      [
+        IDL.Nat,
+        IDL.Text,
+        IDL.Text,
+        IDL.Opt(IDL.Text),
+        IDL.Opt(IDL.Text),
+        IDL.Opt(IDL.Principal),
+        IDL.Vec(IDL.Nat),
+      ],
+      [],
+      [],
+    ),
+  'updateProblemStatus' : IDL.Func([IDL.Nat, ProblemStatus], [], []),
   'updateTicketStatus' : IDL.Func([IDL.Nat, TicketStatus], [], []),
   'updateUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
 });
@@ -127,9 +357,25 @@ export const idlFactory = ({ IDL }) => {
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
-  const TicketType = IDL.Variant({
-    'ServiceRequest' : IDL.Null,
-    'Incident' : IDL.Null,
+  const AssetType = IDL.Variant({
+    'Network' : IDL.Null,
+    'Hardware' : IDL.Null,
+    'Software' : IDL.Null,
+    'Other' : IDL.Null,
+    'Service' : IDL.Null,
+  });
+  const AssetStatus = IDL.Variant({
+    'Disposed' : IDL.Null,
+    'Inactive' : IDL.Null,
+    'Active' : IDL.Null,
+    'Maintenance' : IDL.Null,
+    'Retired' : IDL.Null,
+  });
+  const Time = IDL.Int;
+  const ChangeType = IDL.Variant({
+    'Normal' : IDL.Null,
+    'Emergency' : IDL.Null,
+    'Standard' : IDL.Null,
   });
   const TicketPriority = IDL.Variant({
     'Low' : IDL.Null,
@@ -137,7 +383,20 @@ export const idlFactory = ({ IDL }) => {
     'Medium' : IDL.Null,
     'Critical' : IDL.Null,
   });
-  const Time = IDL.Int;
+  const ImpactLevel = IDL.Variant({
+    'Low' : IDL.Null,
+    'High' : IDL.Null,
+    'Medium' : IDL.Null,
+  });
+  const RiskLevel = IDL.Variant({
+    'Low' : IDL.Null,
+    'High' : IDL.Null,
+    'Medium' : IDL.Null,
+  });
+  const TicketType = IDL.Variant({
+    'ServiceRequest' : IDL.Null,
+    'Incident' : IDL.Null,
+  });
   const UserRole = IDL.Variant({
     'ITAgent' : IDL.Null,
     'Manager' : IDL.Null,
@@ -151,37 +410,128 @@ export const idlFactory = ({ IDL }) => {
     'role' : UserRole,
     'department' : IDL.Text,
   });
+  const Asset = IDL.Record({
+    'id' : IDL.Nat,
+    'status' : AssetStatus,
+    'model' : IDL.Opt(IDL.Text),
+    'manufacturer' : IDL.Opt(IDL.Text),
+    'assignedTo' : IDL.Opt(IDL.Principal),
+    'purchaseDate' : IDL.Opt(Time),
+    'cost' : IDL.Opt(IDL.Nat),
+    'name' : IDL.Text,
+    'createdAt' : Time,
+    'description' : IDL.Opt(IDL.Text),
+    'updatedAt' : Time,
+    'serialNumber' : IDL.Opt(IDL.Text),
+    'warrantyExpiry' : IDL.Opt(Time),
+    'assetType' : AssetType,
+    'assetTag' : IDL.Text,
+    'location' : IDL.Opt(IDL.Text),
+  });
   const UserProfile = IDL.Record({
     'name' : IDL.Text,
     'createdAt' : Time,
     'role' : UserRole,
     'department' : IDL.Text,
   });
-  const DashboardStats = IDL.Record({
-    'incidentInProgress' : IDL.Nat,
-    'serviceRequestInProgress' : IDL.Nat,
-    'serviceRequestResolved' : IDL.Nat,
-    'incidentClosed' : IDL.Nat,
-    'incidentResolved' : IDL.Nat,
-    'totalResolved' : IDL.Nat,
-    'totalOpen' : IDL.Nat,
-    'totalInProgress' : IDL.Nat,
-    'serviceRequestClosed' : IDL.Nat,
-    'totalClosed' : IDL.Nat,
-    'serviceRequestOpen' : IDL.Nat,
-    'incidentOpen' : IDL.Nat,
-  });
-  const TicketStatus = IDL.Variant({
-    'Open' : IDL.Null,
-    'Closed' : IDL.Null,
+  const ChangeStatus = IDL.Variant({
+    'Approved' : IDL.Null,
+    'Draft' : IDL.Null,
+    'Rejected' : IDL.Null,
+    'Cancelled' : IDL.Null,
     'InProgress' : IDL.Null,
-    'Resolved' : IDL.Null,
+    'SubmittedForApproval' : IDL.Null,
+    'Completed' : IDL.Null,
   });
   const Comment = IDL.Record({
     'id' : IDL.Nat,
     'authorId' : IDL.Principal,
     'createdAt' : Time,
     'text' : IDL.Text,
+  });
+  const ApprovalDecision = IDL.Variant({
+    'Approved' : IDL.Null,
+    'Rejected' : IDL.Null,
+  });
+  const ApprovalRecord = IDL.Record({
+    'decision' : ApprovalDecision,
+    'approverId' : IDL.Principal,
+    'comment' : IDL.Opt(IDL.Text),
+    'decidedAt' : Time,
+  });
+  const ChangeRequest = IDL.Record({
+    'id' : IDL.Nat,
+    'status' : ChangeStatus,
+    'impact' : ImpactLevel,
+    'plannedEnd' : IDL.Opt(Time),
+    'title' : IDL.Text,
+    'assigneeId' : IDL.Opt(IDL.Principal),
+    'changeType' : ChangeType,
+    'createdAt' : Time,
+    'risk' : RiskLevel,
+    'description' : IDL.Text,
+    'approverIds' : IDL.Vec(IDL.Principal),
+    'updatedAt' : Time,
+    'category' : IDL.Text,
+    'plannedStart' : Time,
+    'priority' : TicketPriority,
+    'comments' : IDL.Vec(Comment),
+    'actualEnd' : IDL.Opt(Time),
+    'approvals' : IDL.Vec(ApprovalRecord),
+    'requesterId' : IDL.Principal,
+    'actualStart' : IDL.Opt(Time),
+  });
+  const DashboardStats = IDL.Record({
+    'incidentInProgress' : IDL.Nat,
+    'serviceRequestInProgress' : IDL.Nat,
+    'changeCompleted' : IDL.Nat,
+    'serviceRequestResolved' : IDL.Nat,
+    'incidentClosed' : IDL.Nat,
+    'problemResolved' : IDL.Nat,
+    'incidentResolved' : IDL.Nat,
+    'totalResolved' : IDL.Nat,
+    'problemOpen' : IDL.Nat,
+    'totalOpen' : IDL.Nat,
+    'changeInProgress' : IDL.Nat,
+    'problemInAnalysis' : IDL.Nat,
+    'assetInactive' : IDL.Nat,
+    'totalInProgress' : IDL.Nat,
+    'assetActive' : IDL.Nat,
+    'changePendingApproval' : IDL.Nat,
+    'assetMaintenance' : IDL.Nat,
+    'serviceRequestClosed' : IDL.Nat,
+    'totalClosed' : IDL.Nat,
+    'serviceRequestOpen' : IDL.Nat,
+    'incidentOpen' : IDL.Nat,
+  });
+  const ProblemStatus = IDL.Variant({
+    'InAnalysis' : IDL.Null,
+    'Closed' : IDL.Null,
+    'RootCauseFound' : IDL.Null,
+    'Identified' : IDL.Null,
+    'Resolved' : IDL.Null,
+  });
+  const ProblemRecord = IDL.Record({
+    'id' : IDL.Nat,
+    'status' : ProblemStatus,
+    'title' : IDL.Text,
+    'assigneeId' : IDL.Opt(IDL.Principal),
+    'linkedIncidentIds' : IDL.Vec(IDL.Nat),
+    'createdAt' : Time,
+    'description' : IDL.Text,
+    'workaround' : IDL.Opt(IDL.Text),
+    'updatedAt' : Time,
+    'reporterId' : IDL.Principal,
+    'category' : IDL.Text,
+    'priority' : TicketPriority,
+    'comments' : IDL.Vec(Comment),
+    'rootCause' : IDL.Opt(IDL.Text),
+  });
+  const TicketStatus = IDL.Variant({
+    'Open' : IDL.Null,
+    'Closed' : IDL.Null,
+    'InProgress' : IDL.Null,
+    'Resolved' : IDL.Null,
   });
   const Ticket = IDL.Record({
     'id' : IDL.Nat,
@@ -197,6 +547,21 @@ export const idlFactory = ({ IDL }) => {
     'priority' : TicketPriority,
     'comments' : IDL.Vec(Comment),
   });
+  const AssetFilter = IDL.Record({
+    'status' : IDL.Opt(AssetStatus),
+    'assignedTo' : IDL.Opt(IDL.Principal),
+    'assetType' : IDL.Opt(AssetType),
+  });
+  const ChangeFilter = IDL.Record({
+    'status' : IDL.Opt(ChangeStatus),
+    'changeType' : IDL.Opt(ChangeType),
+    'priority' : IDL.Opt(TicketPriority),
+  });
+  const ProblemFilter = IDL.Record({
+    'status' : IDL.Opt(ProblemStatus),
+    'category' : IDL.Opt(IDL.Text),
+    'priority' : IDL.Opt(TicketPriority),
+  });
   const TicketFilter = IDL.Record({
     'status' : IDL.Opt(TicketStatus),
     'assigneeId' : IDL.Opt(IDL.Principal),
@@ -207,18 +572,64 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'addComment' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Nat], []),
+    'addCommentToChange' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Nat], []),
+    'addCommentToProblem' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Nat], []),
+    'approveChange' : IDL.Func([IDL.Nat, IDL.Opt(IDL.Text)], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole__1], [], []),
     'assignTicket' : IDL.Func([IDL.Nat, IDL.Principal], [], []),
+    'createAsset' : IDL.Func(
+        [
+          IDL.Text,
+          AssetType,
+          AssetStatus,
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Text),
+          IDL.Text,
+          IDL.Opt(IDL.Text),
+          IDL.Opt(Time),
+          IDL.Opt(Time),
+          IDL.Opt(IDL.Nat),
+          IDL.Opt(IDL.Text),
+        ],
+        [IDL.Nat],
+        [],
+      ),
+    'createChangeRequest' : IDL.Func(
+        [
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
+          ChangeType,
+          TicketPriority,
+          ImpactLevel,
+          RiskLevel,
+          IDL.Vec(IDL.Principal),
+          Time,
+          IDL.Opt(Time),
+        ],
+        [IDL.Nat],
+        [],
+      ),
+    'createProblem' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, TicketPriority],
+        [IDL.Nat],
+        [],
+      ),
     'createTicket' : IDL.Func(
         [TicketType, IDL.Text, IDL.Text, IDL.Text, TicketPriority],
         [IDL.Nat],
         [],
       ),
+    'deleteAsset' : IDL.Func([IDL.Nat], [], []),
     'getAllUsers' : IDL.Func([], [IDL.Vec(User)], ['query']),
+    'getAsset' : IDL.Func([IDL.Nat], [Asset], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole__1], ['query']),
+    'getChangeRequest' : IDL.Func([IDL.Nat], [ChangeRequest], ['query']),
     'getDashboardStats' : IDL.Func([], [DashboardStats], ['query']),
     'getMyProfile' : IDL.Func([], [IDL.Opt(User)], ['query']),
+    'getProblem' : IDL.Func([IDL.Nat], [ProblemRecord], ['query']),
     'getTicket' : IDL.Func([IDL.Nat], [Ticket], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
@@ -226,9 +637,58 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'listAssets' : IDL.Func([AssetFilter], [IDL.Vec(Asset)], ['query']),
+    'listChangeRequests' : IDL.Func(
+        [ChangeFilter],
+        [IDL.Vec(ChangeRequest)],
+        ['query'],
+      ),
+    'listProblems' : IDL.Func(
+        [ProblemFilter],
+        [IDL.Vec(ProblemRecord)],
+        ['query'],
+      ),
     'listTickets' : IDL.Func([TicketFilter], [IDL.Vec(Ticket)], ['query']),
     'registerUser' : IDL.Func([IDL.Text, IDL.Text], [], []),
+    'rejectChange' : IDL.Func([IDL.Nat, IDL.Opt(IDL.Text)], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'submitChangeForApproval' : IDL.Func([IDL.Nat], [], []),
+    'updateAsset' : IDL.Func(
+        [
+          IDL.Nat,
+          IDL.Text,
+          AssetType,
+          AssetStatus,
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Text),
+          IDL.Text,
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Principal),
+          IDL.Opt(Time),
+          IDL.Opt(Time),
+          IDL.Opt(IDL.Nat),
+          IDL.Opt(IDL.Text),
+        ],
+        [],
+        [],
+      ),
+    'updateAssetStatus' : IDL.Func([IDL.Nat, AssetStatus], [], []),
+    'updateChangeStatus' : IDL.Func([IDL.Nat, ChangeStatus], [], []),
+    'updateProblemDetails' : IDL.Func(
+        [
+          IDL.Nat,
+          IDL.Text,
+          IDL.Text,
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Principal),
+          IDL.Vec(IDL.Nat),
+        ],
+        [],
+        [],
+      ),
+    'updateProblemStatus' : IDL.Func([IDL.Nat, ProblemStatus], [], []),
     'updateTicketStatus' : IDL.Func([IDL.Nat, TicketStatus], [], []),
     'updateUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   });

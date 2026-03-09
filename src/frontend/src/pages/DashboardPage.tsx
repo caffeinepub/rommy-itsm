@@ -12,13 +12,17 @@ import {
 import { Link } from "@tanstack/react-router";
 import {
   Activity,
+  AlertCircle,
   AlertTriangle,
   CheckCircle2,
   Clock,
+  GitBranch,
   Inbox,
+  Package,
   Server,
   TrendingUp,
   XCircle,
+  Zap,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { TicketType } from "../backend.d";
@@ -117,6 +121,17 @@ export function DashboardPage() {
   const srResolved = bigintToNum(stats?.serviceRequestResolved);
   const srClosed = bigintToNum(stats?.serviceRequestClosed);
 
+  // Phase 2 stats
+  const problemOpen = bigintToNum(stats?.problemOpen);
+  const problemInAnalysis = bigintToNum(stats?.problemInAnalysis);
+  const problemResolved = bigintToNum(stats?.problemResolved);
+  const changeInProgress = bigintToNum(stats?.changeInProgress);
+  const changePendingApproval = bigintToNum(stats?.changePendingApproval);
+  const changeCompleted = bigintToNum(stats?.changeCompleted);
+  const assetActive = bigintToNum(stats?.assetActive);
+  const assetInactive = bigintToNum(stats?.assetInactive);
+  const assetMaintenance = bigintToNum(stats?.assetMaintenance);
+
   return (
     <AppLayout title="Dashboard">
       <div className="space-y-6 animate-fade-in">
@@ -167,6 +182,115 @@ export function DashboardPage() {
                   bgColor="bg-muted/50"
                   ocid="dashboard.closed_card"
                   delay={0.15}
+                />
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Phase 2 Stats */}
+        <div>
+          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+            Problems, Changes & Assets
+          </h2>
+          <div className="grid grid-cols-3 lg:grid-cols-9 gap-3">
+            {statsLoading ? (
+              [
+                "sk1",
+                "sk2",
+                "sk3",
+                "sk4",
+                "sk5",
+                "sk6",
+                "sk7",
+                "sk8",
+                "sk9",
+              ].map((sk) => <SkeletonCard key={sk} />)
+            ) : (
+              <>
+                {/* Problems */}
+                <StatCard
+                  title="Problems Open"
+                  value={problemOpen}
+                  icon={<Zap className="h-4 w-4" />}
+                  color="text-yellow-400"
+                  bgColor="bg-yellow-500/10"
+                  ocid="dashboard.problem_open_card"
+                  delay={0.2}
+                />
+                <StatCard
+                  title="In Analysis"
+                  value={problemInAnalysis}
+                  icon={<AlertCircle className="h-4 w-4" />}
+                  color="text-orange-400"
+                  bgColor="bg-orange-500/10"
+                  ocid="dashboard.problem_analysis_card"
+                  delay={0.22}
+                />
+                <StatCard
+                  title="Prob. Resolved"
+                  value={problemResolved}
+                  icon={<CheckCircle2 className="h-4 w-4" />}
+                  color="text-emerald-400"
+                  bgColor="bg-emerald-500/10"
+                  ocid="dashboard.problem_resolved_card"
+                  delay={0.24}
+                />
+                {/* Changes */}
+                <StatCard
+                  title="Changes Active"
+                  value={changeInProgress}
+                  icon={<GitBranch className="h-4 w-4" />}
+                  color="text-primary"
+                  bgColor="bg-primary/10"
+                  ocid="dashboard.change_inprogress_card"
+                  delay={0.26}
+                />
+                <StatCard
+                  title="Pending Approval"
+                  value={changePendingApproval}
+                  icon={<Clock className="h-4 w-4" />}
+                  color="text-violet-400"
+                  bgColor="bg-violet-500/10"
+                  ocid="dashboard.change_pending_card"
+                  delay={0.28}
+                />
+                <StatCard
+                  title="Chg. Completed"
+                  value={changeCompleted}
+                  icon={<CheckCircle2 className="h-4 w-4" />}
+                  color="text-teal-400"
+                  bgColor="bg-teal-500/10"
+                  ocid="dashboard.change_completed_card"
+                  delay={0.3}
+                />
+                {/* Assets */}
+                <StatCard
+                  title="Assets Active"
+                  value={assetActive}
+                  icon={<Package className="h-4 w-4" />}
+                  color="text-emerald-400"
+                  bgColor="bg-emerald-500/10"
+                  ocid="dashboard.asset_active_card"
+                  delay={0.32}
+                />
+                <StatCard
+                  title="Assets Inactive"
+                  value={assetInactive}
+                  icon={<Package className="h-4 w-4" />}
+                  color="text-muted-foreground"
+                  bgColor="bg-muted/50"
+                  ocid="dashboard.asset_inactive_card"
+                  delay={0.34}
+                />
+                <StatCard
+                  title="In Maintenance"
+                  value={assetMaintenance}
+                  icon={<Activity className="h-4 w-4" />}
+                  color="text-yellow-400"
+                  bgColor="bg-yellow-500/10"
+                  ocid="dashboard.asset_maintenance_card"
+                  delay={0.36}
                 />
               </>
             )}

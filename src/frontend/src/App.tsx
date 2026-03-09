@@ -11,8 +11,14 @@ import { Loader2 } from "lucide-react";
 import { TicketType, UserRole } from "./backend.d";
 import { useInternetIdentity } from "./hooks/useInternetIdentity";
 import { useMyProfile } from "./hooks/useQueries";
+import { AssetDetailPage } from "./pages/AssetDetailPage";
+import { AssetsPage } from "./pages/AssetsPage";
+import { ChangeDetailPage } from "./pages/ChangeDetailPage";
+import { ChangesPage } from "./pages/ChangesPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { LoginPage } from "./pages/LoginPage";
+import { ProblemDetailPage } from "./pages/ProblemDetailPage";
+import { ProblemsPage } from "./pages/ProblemsPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { TicketDetailPage } from "./pages/TicketDetailPage";
 import { TicketsPage } from "./pages/TicketsPage";
@@ -164,6 +170,66 @@ const profileRoute = createRoute({
   ),
 });
 
+const problemsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/problems",
+  component: () => (
+    <AuthGuard>
+      <ProblemsPage />
+    </AuthGuard>
+  ),
+});
+
+const problemDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/problems/$id",
+  component: () => (
+    <AuthGuard>
+      <ProblemDetailPage />
+    </AuthGuard>
+  ),
+});
+
+const changesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/changes",
+  component: () => (
+    <AuthGuard>
+      <ChangesPage />
+    </AuthGuard>
+  ),
+});
+
+const changeDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/changes/$id",
+  component: () => (
+    <AuthGuard>
+      <ChangeDetailPage />
+    </AuthGuard>
+  ),
+});
+
+const assetsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/assets",
+  component: () => (
+    <AuthGuard>
+      <AssetsPage />
+    </AuthGuard>
+  ),
+});
+
+const assetDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/assets/$id",
+  component: () => (
+    <AuthGuard>
+      <AssetDetailPage />
+    </AuthGuard>
+  ),
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   dashboardRoute,
@@ -171,6 +237,12 @@ const routeTree = rootRoute.addChildren([
   incidentDetailRoute,
   serviceRequestsRoute,
   serviceRequestDetailRoute,
+  problemsRoute,
+  problemDetailRoute,
+  changesRoute,
+  changeDetailRoute,
+  assetsRoute,
+  assetDetailRoute,
   usersRoute,
   profileRoute,
 ]);

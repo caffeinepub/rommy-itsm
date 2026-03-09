@@ -1,44 +1,51 @@
-# Rommy ITSM System — Phase 1
+# Rommy ITSM System
 
 ## Current State
-Empty project scaffold. No backend or frontend code exists beyond the base template.
+
+Phase 1 is complete and deployed. The system has:
+
+- **Backend (main.mo)**: User management (4 roles: EndUser, ITAgent, Manager, MasterAdmin), Ticket management (Incident + ServiceRequest types), Comments, Dashboard stats
+- **Frontend**: Dashboard, Incident Management, Service Request Management, Ticket Detail, Users Management, Profile, Login pages
+- **Auth**: Internet Identity with role-based access control
 
 ## Requested Changes (Diff)
 
 ### Add
-- **Authentication & User Roles**: Internet Identity login with role-based access (EndUser, ITAgent, Manager, MasterAdmin). First user auto-becomes MasterAdmin.
-- **User Profile**: Name, role, department fields. Setup flow on first login.
-- **Incident Management Module**: Create, list, view, update incidents. Fields: title, description, category, priority (Low/Medium/High/Critical), status (Open/InProgress/Resolved/Closed), assignee, reporter, timestamps, comments.
-- **Service Request Management Module**: Create, list, view, update service requests. Fields: title, description, service type, priority, status, assignee, requester, timestamps, comments.
-- **Dashboard**: Stats cards (Open, In Progress, Resolved, Closed counts), recent tickets table, basic charts by category and priority.
-- **User Management Page** (MasterAdmin only): List all users, change their roles.
-- **Navigation**: Sidebar with links to Dashboard, Incidents, Service Requests, User Management (role-gated), Profile.
+
+**Backend:**
+- `ProblemRecord` type with fields: id, title, description, category, priority, status (Identified/InAnalysis/RootCauseFound/Resolved/Closed), linkedIncidentIds (array of ticket IDs), rootCause (optional text), workaround (optional text), assigneeId (optional), reporterId, createdAt, updatedAt, comments
+- `ChangeRequest` type with fields: id, title, description, category, changeType (Standard/Normal/Emergency), status (Draft/SubmittedForApproval/Approved/Rejected/InProgress/Completed/Cancelled), priority, impact (Low/Medium/High), risk (Low/Medium/High), approvers (array of principals), approvals (array of approval records), assigneeId (optional), requesterId, plannedStart, plannedEnd (optional Time), actualStart (optional Time), actualEnd (optional Time), createdAt, updatedAt, comments
+- `ApprovalRecord` type: approverId, decision (Approved/Rejected), comment (optional text), decidedAt (Time)
+- `Asset` type with fields: id, name, assetType (Hardware/Software/Network/Service/Other), status (Active/Inactive/Maintenance/Retired/Disposed), manufacturer (optional), model (optional), serialNumber (optional), assetTag, location (optional), assignedTo (optional Principal), purchaseDate (optional Time), warrantyExpiry (optional Time), cost (optional Nat), description (optional text), createdAt, updatedAt
+- CRUD operations for Problem records: createProblem, getProblem, listProblems, updateProblemStatus, updateProblemDetails, addCommentToProblem
+- CRUD operations for Change requests: createChangeRequest, getChangeRequest, listChangeRequests, updateChangeStatus, submitChangeForApproval, approveChange, rejectChange, addCommentToChange
+- CRUD operations for Assets: createAsset, getAsset, listAssets, updateAsset, updateAssetStatus, deleteAsset
+- Dashboard stats expansion: add problem counts (open/in-analysis/resolved) and change request counts (draft/pending-approval/in-progress/completed) and asset counts (active/inactive/maintenance)
+
+**Frontend:**
+- Problem Management page: list all problems with filters (status, priority, category), create new problem form, problem detail view with linked incidents, root cause analysis section, comments
+- Change Management page: list change requests with filters (status, changeType, priority), create new change form, change detail view with approval workflow, approval/rejection actions for authorized users, comments
+- Asset Management (CMDB) page: list assets with filters (type, status, location), create/edit asset form, asset detail view, bulk search
+- Navigation: add Problem Management, Change Management, Asset Management links in sidebar
 
 ### Modify
-- Nothing (new project).
+
+- `DashboardStats` type: extend to include problem and change request metrics
+- `getDashboardStats()`: compute and return problem/change request/asset counts
+- App.tsx: add routes for `/problems`, `/problems/$id`, `/changes`, `/changes/$id`, `/assets`, `/assets/$id`
+- Sidebar/navigation component: add new module links
 
 ### Remove
-- Nothing.
+
+Nothing removed.
 
 ## Implementation Plan
-1. Backend (Motoko):
-   - User store: principal → {name, role, department, createdAt}
-   - Roles enum: EndUser, ITAgent, Manager, MasterAdmin
-   - Ticket store (shared for Incidents and Service Requests, typed by ticketType field)
-   - Ticket fields: id, ticketType, title, description, category, priority, status, assigneeId, reporterId, createdAt, updatedAt, comments[]
-   - Comment fields: id, authorId, text, createdAt
-   - CRUD operations: createTicket, getTicket, listTickets, updateTicket, addComment
-   - User ops: registerUser, getUser, getAllUsers, updateUserRole
-   - Helper: getMyRole, isFirstUser
-2. Frontend:
-   - Login page with Internet Identity button
-   - First-login profile setup modal
-   - Sidebar layout with role-gated navigation
-   - Dashboard page: stats cards + recent tickets table
-   - Incident list page: filter by status/priority, create button
-   - Incident detail page: view fields, update status, add comment, assign (ITAgent+ only)
-   - Service Request list page: same structure
-   - Service Request detail page: same structure
-   - Create Ticket modal/page (shared component, type passed as prop)
-   - User Management page (MasterAdmin only)
-   - Profile page
+
+1. Extend `main.mo` to add Problem, ChangeRequest, Asset types and all CRUD/workflow functions
+2. Regenerate `backend.d.ts` with new type bindings
+3. Create `ProblemPage.tsx` and `ProblemDetailPage.tsx` frontend pages
+4. Create `ChangePage.tsx` and `ChangeDetailPage.tsx` frontend pages
+5. Create `AssetPage.tsx` and `AssetDetailPage.tsx` frontend pages
+6. Update `App.tsx` with new routes
+7. Update sidebar/navigation to include new module links
+8. Update Dashboard to show expanded stats including problems, changes, and assets

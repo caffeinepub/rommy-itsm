@@ -6,13 +6,16 @@ import { Link, useLocation } from "@tanstack/react-router";
 import {
   AlertTriangle,
   ChevronLeft,
+  GitBranch,
   LayoutDashboard,
   LogOut,
   Menu,
+  Package,
   Shield,
   ShoppingCart,
   User,
   Users,
+  Zap,
 } from "lucide-react";
 import { useState } from "react";
 import { UserRole } from "../../backend.d";
@@ -45,6 +48,24 @@ const navItems: NavItem[] = [
     label: "Service Requests",
     icon: <ShoppingCart className="h-4 w-4" />,
     ocid: "nav.service_requests_link",
+  },
+  {
+    to: "/problems",
+    label: "Problems",
+    icon: <Zap className="h-4 w-4" />,
+    ocid: "nav.problems_link",
+  },
+  {
+    to: "/changes",
+    label: "Change Management",
+    icon: <GitBranch className="h-4 w-4" />,
+    ocid: "nav.changes_link",
+  },
+  {
+    to: "/assets",
+    label: "Assets (CMDB)",
+    icon: <Package className="h-4 w-4" />,
+    ocid: "nav.assets_link",
   },
   {
     to: "/users",
