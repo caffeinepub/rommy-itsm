@@ -12,6 +12,7 @@ import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 import Migration "migration";
 
+// Apply migration on upgrade via actor's with clause
 (with migration = Migration.run)
 actor {
   // ====================
@@ -259,6 +260,66 @@ actor {
     assignedTo : ?Principal;
   };
 
+  // PHASE 3 (NEW TYPES)
+
+  public type ServiceCatalogItem = {
+    id : Nat;
+    name : Text;
+    category : Text;
+    description : Text;
+    slaInfo : Text;
+    isAvailable : Bool;
+    createdBy : Principal;
+    createdAt : Time.Time;
+    updatedAt : Time.Time;
+  };
+
+  public type ServiceCatalogFilter = {
+    category : ?Text;
+    isAvailable : ?Bool;
+  };
+
+  public type KnowledgeArticle = {
+    id : Nat;
+    title : Text;
+    category : Text;
+    content : Text;
+    tags : [Text];
+    isPublished : Bool;
+    viewCount : Nat;
+    authorId : Principal;
+    createdAt : Time.Time;
+    updatedAt : Time.Time;
+  };
+
+  public type KnowledgeArticleFilter = {
+    category : ?Text;
+    isPublished : ?Bool;
+  };
+
+  public type SOP = {
+    id : Nat;
+    title : Text;
+    category : Text;
+    content : Text;
+    version : Text;
+    status : SOPStatus;
+    authorId : Principal;
+    createdAt : Time.Time;
+    updatedAt : Time.Time;
+  };
+
+  public type SOPStatus = {
+    #Draft;
+    #Active;
+    #Archived;
+  };
+
+  public type SOPFilter = {
+    category : ?Text;
+    status : ?SOPStatus;
+  };
+
   // ====================
   // Persistent State
   // ====================
@@ -269,11 +330,19 @@ actor {
   let changes = Map.empty<Nat, ChangeRequest>();
   let assets = Map.empty<Nat, Asset>();
 
+  // PHASE 3 (NEW STATE)
+  let serviceCatalog = Map.empty<Nat, ServiceCatalogItem>();
+  let knowledgeBase = Map.empty<Nat, KnowledgeArticle>();
+  let sops = Map.empty<Nat, SOP>();
+
   var nextTicketId : Nat = 1;
   var nextCommentId : Nat = 1;
   var nextProblemId : Nat = 1;
   var nextChangeId : Nat = 1;
   var nextAssetId : Nat = 1;
+  var nextServiceId : Nat = 1; // Phase 3
+  var nextArticleId : Nat = 1; // Phase 3
+  var nextSopId : Nat = 1; // Phase 3
 
   var firstUserRegistered : Bool = false;
 
@@ -1436,5 +1505,396 @@ actor {
       assetInactive;
       assetMaintenance;
     };
+  };
+
+  // ====================
+  // PHASE 3: SERVICE CATALOG
+  // ====================
+
+  public shared ({ caller }) func createServiceCatalogItem(name : Text, category : Text, description : Text, slaInfo : Text, isAvailable : Bool) : async Nat {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only ITAgent, Manager, or MasterAdmin can create service catalog items");
+    };
+
+    let item : ServiceCatalogItem = {
+      id = nextServiceId;
+      name;
+      category;
+      description;
+      slaInfo;
+      isAvailable;
+      createdBy = caller;
+      createdAt = Time.now();
+      updatedAt = Time.now();
+    };
+
+    serviceCatalog.add(nextServiceId, item);
+    nextServiceId += 1;
+    item.id;
+  };
+
+  public shared ({ caller }) func updateServiceCatalogItem(id : Nat, name : Text, category : Text, description : Text, slaInfo : Text, isAvailable : Bool) : async () {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only ITAgent, Manager, or MasterAdmin can update service catalog items");
+    };
+
+    switch (serviceCatalog.get(id)) {
+      case (null) { Runtime.trap("Service catalog item not found") };
+      case (?item) {
+        let updatedItem : ServiceCatalogItem = {
+          id = item.id;
+          name;
+          category;
+          description;
+          slaInfo;
+          isAvailable;
+          createdBy = item.createdBy;
+          createdAt = item.createdAt;
+          updatedAt = Time.now();
+        };
+        serviceCatalog.add(id, updatedItem);
+      };
+    };
+  };
+
+  public shared ({ caller }) func deleteServiceCatalogItem(id : Nat) : async () {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only ITAgent, Manager, or MasterAdmin can delete service catalog items");
+    };
+
+    switch (serviceCatalog.get(id)) {
+      case (null) { Runtime.trap("Service catalog item not found") };
+      case (?_) {
+        serviceCatalog.remove(id);
+      };
+    };
+  };
+
+  public query ({ caller }) func getServiceCatalogItem(id : Nat) : async ServiceCatalogItem {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can view service catalog items");
+    };
+
+    switch (serviceCatalog.get(id)) {
+      case (null) { Runtime.trap("Service catalog item not found") };
+      case (?item) { item };
+    };
+  };
+
+  public query ({ caller }) func listServiceCatalogItems(filter : ServiceCatalogFilter) : async [ServiceCatalogItem] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can list service catalog items");
+    };
+
+    serviceCatalog.values().toArray().filter(
+      func(item : ServiceCatalogItem) : Bool {
+        let categoryMatch = switch (filter.category) {
+          case (null) { true };
+          case (?category) { item.category == category };
+        };
+
+        let availabilityMatch = switch (filter.isAvailable) {
+          case (null) { true };
+          case (?isAvailable) { item.isAvailable == isAvailable };
+        };
+
+        categoryMatch and availabilityMatch;
+      }
+    );
+  };
+
+  public shared ({ caller }) func requestFromCatalog(itemId : Nat, details : Text) : async Nat {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can request from service catalog");
+    };
+
+    switch (serviceCatalog.get(itemId)) {
+      case (null) { Runtime.trap("Service catalog item not found") };
+      case (?item) {
+        if (not item.isAvailable) {
+          Runtime.trap("Service catalog item is not available");
+        };
+
+        let ticket : Ticket = {
+          id = nextTicketId;
+          ticketType = #ServiceRequest;
+          title = item.name;
+          description = details # "\n\nService Catalog Request:\n" # item.description;
+          category = item.category;
+          priority = #Medium;
+          status = #Open;
+          assigneeId = null;
+          reporterId = caller;
+          createdAt = Time.now();
+          updatedAt = Time.now();
+          comments = [];
+        };
+
+        tickets.add(nextTicketId, ticket);
+        nextTicketId += 1;
+        ticket.id;
+      };
+    };
+  };
+
+  // ====================
+  // PHASE 3: KNOWLEDGE BASE
+  // ====================
+
+  public shared ({ caller }) func createKnowledgeArticle(
+    title : Text,
+    category : Text,
+    content : Text,
+    tags : [Text],
+    isPublished : Bool,
+  ) : async Nat {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only ITAgent, Manager, or MasterAdmin can create knowledge articles");
+    };
+
+    let article : KnowledgeArticle = {
+      id = nextArticleId;
+      title;
+      category;
+      content;
+      tags;
+      isPublished;
+      viewCount = 0;
+      authorId = caller;
+      createdAt = Time.now();
+      updatedAt = Time.now();
+    };
+
+    knowledgeBase.add(nextArticleId, article);
+    nextArticleId += 1;
+    article.id;
+  };
+
+  public shared ({ caller }) func updateKnowledgeArticle(
+    id : Nat,
+    title : Text,
+    category : Text,
+    content : Text,
+    tags : [Text],
+    isPublished : Bool,
+  ) : async () {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only ITAgent, Manager, or MasterAdmin can update knowledge articles");
+    };
+
+    switch (knowledgeBase.get(id)) {
+      case (null) { Runtime.trap("Knowledge article not found") };
+      case (?article) {
+        let updatedArticle : KnowledgeArticle = {
+          id = article.id;
+          title;
+          category;
+          content;
+          tags;
+          isPublished;
+          viewCount = article.viewCount;
+          authorId = article.authorId;
+          createdAt = article.createdAt;
+          updatedAt = Time.now();
+        };
+        knowledgeBase.add(id, updatedArticle);
+      };
+    };
+  };
+
+  public shared ({ caller }) func deleteKnowledgeArticle(id : Nat) : async () {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only ITAgent, Manager, or MasterAdmin can delete knowledge articles");
+    };
+
+    switch (knowledgeBase.get(id)) {
+      case (null) { Runtime.trap("Knowledge article not found") };
+      case (?_) {
+        knowledgeBase.remove(id);
+      };
+    };
+  };
+
+  public shared ({ caller }) func getKnowledgeArticle(id : Nat) : async KnowledgeArticle {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can view knowledge articles");
+    };
+
+    switch (knowledgeBase.get(id)) {
+      case (null) { Runtime.trap("Knowledge article not found") };
+      case (?article) {
+        // Increment view count only for non-authors
+        if (article.authorId != caller) {
+          let updatedArticle : KnowledgeArticle = {
+            id = article.id;
+            title = article.title;
+            category = article.category;
+            content = article.content;
+            tags = article.tags;
+            isPublished = article.isPublished;
+            viewCount = article.viewCount + 1;
+            authorId = article.authorId;
+            createdAt = article.createdAt;
+            updatedAt = Time.now();
+          };
+          knowledgeBase.add(id, updatedArticle);
+        };
+        article;
+      };
+    };
+  };
+
+  public query ({ caller }) func listKnowledgeArticles(filter : KnowledgeArticleFilter) : async [KnowledgeArticle] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can list knowledge articles");
+    };
+
+    knowledgeBase.values().toArray().filter(
+      func(article : KnowledgeArticle) : Bool {
+        let categoryMatch = switch (filter.category) {
+          case (null) { true };
+          case (?category) { article.category == category };
+        };
+
+        let publishedMatch = switch (filter.isPublished) {
+          case (null) { true };
+          case (?isPublished) { article.isPublished == isPublished };
+        };
+
+        categoryMatch and publishedMatch;
+      }
+    );
+  };
+
+  // ====================
+  // PHASE 3: SOPS (Standard Operating Procedures)
+  // ====================
+
+  public shared ({ caller }) func createSOP(
+    title : Text,
+    category : Text,
+    content : Text,
+    version : Text,
+    status : SOPStatus,
+  ) : async Nat {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only ITAgent, Manager, or MasterAdmin can create SOPs");
+    };
+
+    let sop : SOP = {
+      id = nextSopId;
+      title;
+      category;
+      content;
+      version;
+      status;
+      authorId = caller;
+      createdAt = Time.now();
+      updatedAt = Time.now();
+    };
+
+    sops.add(nextSopId, sop);
+    nextSopId += 1;
+    sop.id;
+  };
+
+  public shared ({ caller }) func updateSOP(
+    id : Nat,
+    title : Text,
+    category : Text,
+    content : Text,
+    version : Text,
+  ) : async () {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only ITAgent, Manager, or MasterAdmin can update SOPs");
+    };
+
+    switch (sops.get(id)) {
+      case (null) { Runtime.trap("SOP not found") };
+      case (?sop) {
+        let updatedSOP : SOP = {
+          id = sop.id;
+          title;
+          category;
+          content;
+          version;
+          status = sop.status;
+          authorId = sop.authorId;
+          createdAt = sop.createdAt;
+          updatedAt = Time.now();
+        };
+        sops.add(id, updatedSOP);
+      };
+    };
+  };
+
+  public shared ({ caller }) func updateSOPStatus(id : Nat, status : SOPStatus) : async () {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only ITAgent, Manager, or MasterAdmin can update SOP status");
+    };
+
+    switch (sops.get(id)) {
+      case (null) { Runtime.trap("SOP not found") };
+      case (?sop) {
+        let updatedSOP : SOP = {
+          id = sop.id;
+          title = sop.title;
+          category = sop.category;
+          content = sop.content;
+          version = sop.version;
+          status;
+          authorId = sop.authorId;
+          createdAt = sop.createdAt;
+          updatedAt = Time.now();
+        };
+        sops.add(id, updatedSOP);
+      };
+    };
+  };
+
+  public shared ({ caller }) func deleteSOP(id : Nat) : async () {
+    if (not isMasterAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only MasterAdmin can delete SOPs");
+    };
+
+    switch (sops.get(id)) {
+      case (null) { Runtime.trap("SOP not found") };
+      case (?_) {
+        sops.remove(id);
+      };
+    };
+  };
+
+  public query ({ caller }) func getSOP(id : Nat) : async SOP {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can view SOPs");
+    };
+
+    switch (sops.get(id)) {
+      case (null) { Runtime.trap("SOP not found") };
+      case (?sop) { sop };
+    };
+  };
+
+  public query ({ caller }) func listSOPs(filter : SOPFilter) : async [SOP] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can list SOPs");
+    };
+
+    sops.values().toArray().filter(
+      func(sop : SOP) : Bool {
+        let categoryMatch = switch (filter.category) {
+          case (null) { true };
+          case (?category) { sop.category == category };
+        };
+
+        let statusMatch = switch (filter.status) {
+          case (null) { true };
+          case (?status) { sop.status == status };
+        };
+
+        categoryMatch and statusMatch;
+      }
+    );
   };
 };

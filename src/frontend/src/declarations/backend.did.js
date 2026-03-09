@@ -49,6 +49,11 @@ export const RiskLevel = IDL.Variant({
   'High' : IDL.Null,
   'Medium' : IDL.Null,
 });
+export const SOPStatus = IDL.Variant({
+  'Active' : IDL.Null,
+  'Draft' : IDL.Null,
+  'Archived' : IDL.Null,
+});
 export const TicketType = IDL.Variant({
   'ServiceRequest' : IDL.Null,
   'Incident' : IDL.Null,
@@ -160,6 +165,18 @@ export const DashboardStats = IDL.Record({
   'serviceRequestOpen' : IDL.Nat,
   'incidentOpen' : IDL.Nat,
 });
+export const KnowledgeArticle = IDL.Record({
+  'id' : IDL.Nat,
+  'title' : IDL.Text,
+  'content' : IDL.Text,
+  'isPublished' : IDL.Bool,
+  'authorId' : IDL.Principal,
+  'createdAt' : Time,
+  'tags' : IDL.Vec(IDL.Text),
+  'updatedAt' : Time,
+  'viewCount' : IDL.Nat,
+  'category' : IDL.Text,
+});
 export const ProblemStatus = IDL.Variant({
   'InAnalysis' : IDL.Null,
   'Closed' : IDL.Null,
@@ -182,6 +199,28 @@ export const ProblemRecord = IDL.Record({
   'priority' : TicketPriority,
   'comments' : IDL.Vec(Comment),
   'rootCause' : IDL.Opt(IDL.Text),
+});
+export const SOP = IDL.Record({
+  'id' : IDL.Nat,
+  'status' : SOPStatus,
+  'title' : IDL.Text,
+  'content' : IDL.Text,
+  'authorId' : IDL.Principal,
+  'createdAt' : Time,
+  'version' : IDL.Text,
+  'updatedAt' : Time,
+  'category' : IDL.Text,
+});
+export const ServiceCatalogItem = IDL.Record({
+  'id' : IDL.Nat,
+  'name' : IDL.Text,
+  'createdAt' : Time,
+  'createdBy' : IDL.Principal,
+  'isAvailable' : IDL.Bool,
+  'description' : IDL.Text,
+  'updatedAt' : Time,
+  'category' : IDL.Text,
+  'slaInfo' : IDL.Text,
 });
 export const TicketStatus = IDL.Variant({
   'Open' : IDL.Null,
@@ -213,10 +252,22 @@ export const ChangeFilter = IDL.Record({
   'changeType' : IDL.Opt(ChangeType),
   'priority' : IDL.Opt(TicketPriority),
 });
+export const KnowledgeArticleFilter = IDL.Record({
+  'isPublished' : IDL.Opt(IDL.Bool),
+  'category' : IDL.Opt(IDL.Text),
+});
 export const ProblemFilter = IDL.Record({
   'status' : IDL.Opt(ProblemStatus),
   'category' : IDL.Opt(IDL.Text),
   'priority' : IDL.Opt(TicketPriority),
+});
+export const SOPFilter = IDL.Record({
+  'status' : IDL.Opt(SOPStatus),
+  'category' : IDL.Opt(IDL.Text),
+});
+export const ServiceCatalogFilter = IDL.Record({
+  'isAvailable' : IDL.Opt(IDL.Bool),
+  'category' : IDL.Opt(IDL.Text),
 });
 export const TicketFilter = IDL.Record({
   'status' : IDL.Opt(TicketStatus),
@@ -267,8 +318,23 @@ export const idlService = IDL.Service({
       [IDL.Nat],
       [],
     ),
+  'createKnowledgeArticle' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text, IDL.Vec(IDL.Text), IDL.Bool],
+      [IDL.Nat],
+      [],
+    ),
   'createProblem' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Text, TicketPriority],
+      [IDL.Nat],
+      [],
+    ),
+  'createSOP' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text, IDL.Text, SOPStatus],
+      [IDL.Nat],
+      [],
+    ),
+  'createServiceCatalogItem' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Bool],
       [IDL.Nat],
       [],
     ),
@@ -278,14 +344,24 @@ export const idlService = IDL.Service({
       [],
     ),
   'deleteAsset' : IDL.Func([IDL.Nat], [], []),
+  'deleteKnowledgeArticle' : IDL.Func([IDL.Nat], [], []),
+  'deleteSOP' : IDL.Func([IDL.Nat], [], []),
+  'deleteServiceCatalogItem' : IDL.Func([IDL.Nat], [], []),
   'getAllUsers' : IDL.Func([], [IDL.Vec(User)], ['query']),
   'getAsset' : IDL.Func([IDL.Nat], [Asset], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole__1], ['query']),
   'getChangeRequest' : IDL.Func([IDL.Nat], [ChangeRequest], ['query']),
   'getDashboardStats' : IDL.Func([], [DashboardStats], ['query']),
+  'getKnowledgeArticle' : IDL.Func([IDL.Nat], [KnowledgeArticle], []),
   'getMyProfile' : IDL.Func([], [IDL.Opt(User)], ['query']),
   'getProblem' : IDL.Func([IDL.Nat], [ProblemRecord], ['query']),
+  'getSOP' : IDL.Func([IDL.Nat], [SOP], ['query']),
+  'getServiceCatalogItem' : IDL.Func(
+      [IDL.Nat],
+      [ServiceCatalogItem],
+      ['query'],
+    ),
   'getTicket' : IDL.Func([IDL.Nat], [Ticket], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
@@ -299,14 +375,26 @@ export const idlService = IDL.Service({
       [IDL.Vec(ChangeRequest)],
       ['query'],
     ),
+  'listKnowledgeArticles' : IDL.Func(
+      [KnowledgeArticleFilter],
+      [IDL.Vec(KnowledgeArticle)],
+      ['query'],
+    ),
   'listProblems' : IDL.Func(
       [ProblemFilter],
       [IDL.Vec(ProblemRecord)],
       ['query'],
     ),
+  'listSOPs' : IDL.Func([SOPFilter], [IDL.Vec(SOP)], ['query']),
+  'listServiceCatalogItems' : IDL.Func(
+      [ServiceCatalogFilter],
+      [IDL.Vec(ServiceCatalogItem)],
+      ['query'],
+    ),
   'listTickets' : IDL.Func([TicketFilter], [IDL.Vec(Ticket)], ['query']),
   'registerUser' : IDL.Func([IDL.Text, IDL.Text], [], []),
   'rejectChange' : IDL.Func([IDL.Nat, IDL.Opt(IDL.Text)], [], []),
+  'requestFromCatalog' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Nat], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'submitChangeForApproval' : IDL.Func([IDL.Nat], [], []),
   'updateAsset' : IDL.Func(
@@ -331,6 +419,11 @@ export const idlService = IDL.Service({
     ),
   'updateAssetStatus' : IDL.Func([IDL.Nat, AssetStatus], [], []),
   'updateChangeStatus' : IDL.Func([IDL.Nat, ChangeStatus], [], []),
+  'updateKnowledgeArticle' : IDL.Func(
+      [IDL.Nat, IDL.Text, IDL.Text, IDL.Text, IDL.Vec(IDL.Text), IDL.Bool],
+      [],
+      [],
+    ),
   'updateProblemDetails' : IDL.Func(
       [
         IDL.Nat,
@@ -345,6 +438,17 @@ export const idlService = IDL.Service({
       [],
     ),
   'updateProblemStatus' : IDL.Func([IDL.Nat, ProblemStatus], [], []),
+  'updateSOP' : IDL.Func(
+      [IDL.Nat, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+      [],
+      [],
+    ),
+  'updateSOPStatus' : IDL.Func([IDL.Nat, SOPStatus], [], []),
+  'updateServiceCatalogItem' : IDL.Func(
+      [IDL.Nat, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Bool],
+      [],
+      [],
+    ),
   'updateTicketStatus' : IDL.Func([IDL.Nat, TicketStatus], [], []),
   'updateUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
 });
@@ -392,6 +496,11 @@ export const idlFactory = ({ IDL }) => {
     'Low' : IDL.Null,
     'High' : IDL.Null,
     'Medium' : IDL.Null,
+  });
+  const SOPStatus = IDL.Variant({
+    'Active' : IDL.Null,
+    'Draft' : IDL.Null,
+    'Archived' : IDL.Null,
   });
   const TicketType = IDL.Variant({
     'ServiceRequest' : IDL.Null,
@@ -504,6 +613,18 @@ export const idlFactory = ({ IDL }) => {
     'serviceRequestOpen' : IDL.Nat,
     'incidentOpen' : IDL.Nat,
   });
+  const KnowledgeArticle = IDL.Record({
+    'id' : IDL.Nat,
+    'title' : IDL.Text,
+    'content' : IDL.Text,
+    'isPublished' : IDL.Bool,
+    'authorId' : IDL.Principal,
+    'createdAt' : Time,
+    'tags' : IDL.Vec(IDL.Text),
+    'updatedAt' : Time,
+    'viewCount' : IDL.Nat,
+    'category' : IDL.Text,
+  });
   const ProblemStatus = IDL.Variant({
     'InAnalysis' : IDL.Null,
     'Closed' : IDL.Null,
@@ -526,6 +647,28 @@ export const idlFactory = ({ IDL }) => {
     'priority' : TicketPriority,
     'comments' : IDL.Vec(Comment),
     'rootCause' : IDL.Opt(IDL.Text),
+  });
+  const SOP = IDL.Record({
+    'id' : IDL.Nat,
+    'status' : SOPStatus,
+    'title' : IDL.Text,
+    'content' : IDL.Text,
+    'authorId' : IDL.Principal,
+    'createdAt' : Time,
+    'version' : IDL.Text,
+    'updatedAt' : Time,
+    'category' : IDL.Text,
+  });
+  const ServiceCatalogItem = IDL.Record({
+    'id' : IDL.Nat,
+    'name' : IDL.Text,
+    'createdAt' : Time,
+    'createdBy' : IDL.Principal,
+    'isAvailable' : IDL.Bool,
+    'description' : IDL.Text,
+    'updatedAt' : Time,
+    'category' : IDL.Text,
+    'slaInfo' : IDL.Text,
   });
   const TicketStatus = IDL.Variant({
     'Open' : IDL.Null,
@@ -557,10 +700,22 @@ export const idlFactory = ({ IDL }) => {
     'changeType' : IDL.Opt(ChangeType),
     'priority' : IDL.Opt(TicketPriority),
   });
+  const KnowledgeArticleFilter = IDL.Record({
+    'isPublished' : IDL.Opt(IDL.Bool),
+    'category' : IDL.Opt(IDL.Text),
+  });
   const ProblemFilter = IDL.Record({
     'status' : IDL.Opt(ProblemStatus),
     'category' : IDL.Opt(IDL.Text),
     'priority' : IDL.Opt(TicketPriority),
+  });
+  const SOPFilter = IDL.Record({
+    'status' : IDL.Opt(SOPStatus),
+    'category' : IDL.Opt(IDL.Text),
+  });
+  const ServiceCatalogFilter = IDL.Record({
+    'isAvailable' : IDL.Opt(IDL.Bool),
+    'category' : IDL.Opt(IDL.Text),
   });
   const TicketFilter = IDL.Record({
     'status' : IDL.Opt(TicketStatus),
@@ -611,8 +766,23 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Nat],
         [],
       ),
+    'createKnowledgeArticle' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Vec(IDL.Text), IDL.Bool],
+        [IDL.Nat],
+        [],
+      ),
     'createProblem' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, TicketPriority],
+        [IDL.Nat],
+        [],
+      ),
+    'createSOP' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Text, SOPStatus],
+        [IDL.Nat],
+        [],
+      ),
+    'createServiceCatalogItem' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Bool],
         [IDL.Nat],
         [],
       ),
@@ -622,14 +792,24 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'deleteAsset' : IDL.Func([IDL.Nat], [], []),
+    'deleteKnowledgeArticle' : IDL.Func([IDL.Nat], [], []),
+    'deleteSOP' : IDL.Func([IDL.Nat], [], []),
+    'deleteServiceCatalogItem' : IDL.Func([IDL.Nat], [], []),
     'getAllUsers' : IDL.Func([], [IDL.Vec(User)], ['query']),
     'getAsset' : IDL.Func([IDL.Nat], [Asset], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole__1], ['query']),
     'getChangeRequest' : IDL.Func([IDL.Nat], [ChangeRequest], ['query']),
     'getDashboardStats' : IDL.Func([], [DashboardStats], ['query']),
+    'getKnowledgeArticle' : IDL.Func([IDL.Nat], [KnowledgeArticle], []),
     'getMyProfile' : IDL.Func([], [IDL.Opt(User)], ['query']),
     'getProblem' : IDL.Func([IDL.Nat], [ProblemRecord], ['query']),
+    'getSOP' : IDL.Func([IDL.Nat], [SOP], ['query']),
+    'getServiceCatalogItem' : IDL.Func(
+        [IDL.Nat],
+        [ServiceCatalogItem],
+        ['query'],
+      ),
     'getTicket' : IDL.Func([IDL.Nat], [Ticket], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
@@ -643,14 +823,26 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(ChangeRequest)],
         ['query'],
       ),
+    'listKnowledgeArticles' : IDL.Func(
+        [KnowledgeArticleFilter],
+        [IDL.Vec(KnowledgeArticle)],
+        ['query'],
+      ),
     'listProblems' : IDL.Func(
         [ProblemFilter],
         [IDL.Vec(ProblemRecord)],
         ['query'],
       ),
+    'listSOPs' : IDL.Func([SOPFilter], [IDL.Vec(SOP)], ['query']),
+    'listServiceCatalogItems' : IDL.Func(
+        [ServiceCatalogFilter],
+        [IDL.Vec(ServiceCatalogItem)],
+        ['query'],
+      ),
     'listTickets' : IDL.Func([TicketFilter], [IDL.Vec(Ticket)], ['query']),
     'registerUser' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'rejectChange' : IDL.Func([IDL.Nat, IDL.Opt(IDL.Text)], [], []),
+    'requestFromCatalog' : IDL.Func([IDL.Nat, IDL.Text], [IDL.Nat], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'submitChangeForApproval' : IDL.Func([IDL.Nat], [], []),
     'updateAsset' : IDL.Func(
@@ -675,6 +867,11 @@ export const idlFactory = ({ IDL }) => {
       ),
     'updateAssetStatus' : IDL.Func([IDL.Nat, AssetStatus], [], []),
     'updateChangeStatus' : IDL.Func([IDL.Nat, ChangeStatus], [], []),
+    'updateKnowledgeArticle' : IDL.Func(
+        [IDL.Nat, IDL.Text, IDL.Text, IDL.Text, IDL.Vec(IDL.Text), IDL.Bool],
+        [],
+        [],
+      ),
     'updateProblemDetails' : IDL.Func(
         [
           IDL.Nat,
@@ -689,6 +886,17 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'updateProblemStatus' : IDL.Func([IDL.Nat, ProblemStatus], [], []),
+    'updateSOP' : IDL.Func(
+        [IDL.Nat, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
+        [],
+        [],
+      ),
+    'updateSOPStatus' : IDL.Func([IDL.Nat, SOPStatus], [], []),
+    'updateServiceCatalogItem' : IDL.Func(
+        [IDL.Nat, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Bool],
+        [],
+        [],
+      ),
     'updateTicketStatus' : IDL.Func([IDL.Nat, TicketStatus], [], []),
     'updateUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   });

@@ -4,65 +4,49 @@ import Principal "mo:core/Principal";
 import Time "mo:core/Time";
 
 module {
-  type UserRole = {
-    #EndUser;
-    #ITAgent;
-    #Manager;
-    #MasterAdmin;
-  };
-
-  type User = {
-    principal : Principal.Principal;
-    name : Text;
-    role : UserRole;
-    department : Text;
-    createdAt : Time.Time;
-  };
-
-  type TicketType = {
+  // Old types (from existing backend)
+  type OldTicketType = {
     #Incident;
     #ServiceRequest;
   };
 
-  type TicketStatus = {
+  type OldTicketStatus = {
     #Open;
     #InProgress;
     #Resolved;
     #Closed;
   };
 
-  type TicketPriority = {
+  type OldTicketPriority = {
     #Low;
     #Medium;
     #High;
     #Critical;
   };
 
-  type Ticket = {
+  type OldComment = {
     id : Nat;
-    ticketType : TicketType;
-    title : Text;
-    description : Text;
-    category : Text;
-    priority : TicketPriority;
-    status : TicketStatus;
-    assigneeId : ?Principal.Principal;
-    reporterId : Principal.Principal;
-    createdAt : Time.Time;
-    updatedAt : Time.Time;
-    comments : [Comment];
-  };
-
-  type Comment = {
-    id : Nat;
-    authorId : Principal.Principal;
+    authorId : Principal;
     text : Text;
     createdAt : Time.Time;
   };
 
-  // New Phase 2 Types for Migration
+  type OldTicket = {
+    id : Nat;
+    ticketType : OldTicketType;
+    title : Text;
+    description : Text;
+    category : Text;
+    priority : OldTicketPriority;
+    status : OldTicketStatus;
+    assigneeId : ?Principal;
+    reporterId : Principal;
+    createdAt : Time.Time;
+    updatedAt : Time.Time;
+    comments : [OldComment];
+  };
 
-  type ProblemStatus = {
+  type OldProblemStatus = {
     #Identified;
     #InAnalysis;
     #RootCauseFound;
@@ -70,30 +54,30 @@ module {
     #Closed;
   };
 
-  type ProblemRecord = {
+  type OldProblemRecord = {
     id : Nat;
     title : Text;
     description : Text;
     category : Text;
-    priority : TicketPriority;
-    status : ProblemStatus;
+    priority : OldTicketPriority;
+    status : OldProblemStatus;
     linkedIncidentIds : [Nat];
     rootCause : ?Text;
     workaround : ?Text;
-    assigneeId : ?Principal.Principal;
-    reporterId : Principal.Principal;
+    assigneeId : ?Principal;
+    reporterId : Principal;
     createdAt : Time.Time;
     updatedAt : Time.Time;
-    comments : [Comment];
+    comments : [OldComment];
   };
 
-  type ChangeType = {
+  type OldChangeType = {
     #Standard;
     #Normal;
     #Emergency;
   };
 
-  type ChangeStatus = {
+  type OldChangeStatus = {
     #Draft;
     #SubmittedForApproval;
     #Approved;
@@ -103,80 +87,70 @@ module {
     #Cancelled;
   };
 
-  type ImpactLevel = {
-    #Low;
-    #Medium;
-    #High;
-  };
-
-  type RiskLevel = {
-    #Low;
-    #Medium;
-    #High;
-  };
-
-  type ApprovalDecision = {
-    #Approved;
-    #Rejected;
-  };
-
-  type ApprovalRecord = {
-    approverId : Principal.Principal;
-    decision : ApprovalDecision;
+  type OldApprovalRecord = {
+    approverId : Principal;
+    decision : {
+      #Approved;
+      #Rejected;
+    };
     comment : ?Text;
     decidedAt : Time.Time;
   };
 
-  type ChangeRequest = {
+  type OldChangeRequest = {
     id : Nat;
     title : Text;
     description : Text;
     category : Text;
-    changeType : ChangeType;
-    status : ChangeStatus;
-    priority : TicketPriority;
-    impact : ImpactLevel;
-    risk : RiskLevel;
-    approverIds : [Principal.Principal];
-    approvals : [ApprovalRecord];
-    assigneeId : ?Principal.Principal;
-    requesterId : Principal.Principal;
+    changeType : OldChangeType;
+    status : OldChangeStatus;
+    priority : OldTicketPriority;
+    impact : {
+      #Low;
+      #Medium;
+      #High;
+    };
+    risk : {
+      #Low;
+      #Medium;
+      #High;
+    };
+    approverIds : [Principal];
+    approvals : [OldApprovalRecord];
+    assigneeId : ?Principal;
+    requesterId : Principal;
     plannedStart : Time.Time;
     plannedEnd : ?Time.Time;
     actualStart : ?Time.Time;
     actualEnd : ?Time.Time;
     createdAt : Time.Time;
     updatedAt : Time.Time;
-    comments : [Comment];
+    comments : [OldComment];
   };
 
-  type AssetType = {
-    #Hardware;
-    #Software;
-    #Network;
-    #Service;
-    #Other;
-  };
-
-  type AssetStatus = {
-    #Active;
-    #Inactive;
-    #Maintenance;
-    #Retired;
-    #Disposed;
-  };
-
-  type Asset = {
+  type OldAsset = {
     id : Nat;
     name : Text;
-    assetType : AssetType;
-    status : AssetStatus;
+    assetType : {
+      #Hardware;
+      #Software;
+      #Network;
+      #Service;
+      #Other;
+    };
+    status : {
+      #Active;
+      #Inactive;
+      #Maintenance;
+      #Retired;
+      #Disposed;
+    };
     manufacturer : ?Text;
     model : ?Text;
     serialNumber : ?Text;
     assetTag : Text;
     location : ?Text;
-    assignedTo : ?Principal.Principal;
+    assignedTo : ?Principal;
     purchaseDate : ?Time.Time;
     warrantyExpiry : ?Time.Time;
     cost : ?Nat;
@@ -185,37 +159,79 @@ module {
     updatedAt : Time.Time;
   };
 
+  // Old actor state
   type OldActor = {
-    users : Map.Map<Principal.Principal, User>;
-    tickets : Map.Map<Nat, Ticket>;
-    nextTicketId : Nat;
-    nextCommentId : Nat;
-    firstUserRegistered : Bool;
+    tickets : Map.Map<Nat, OldTicket>;
+    problems : Map.Map<Nat, OldProblemRecord>;
+    changes : Map.Map<Nat, OldChangeRequest>;
+    assets : Map.Map<Nat, OldAsset>;
+    // Add other existing state variables if needed
   };
 
-  type NewActor = {
-    users : Map.Map<Principal.Principal, User>;
-    tickets : Map.Map<Nat, Ticket>;
-    problems : Map.Map<Nat, ProblemRecord>;
-    changes : Map.Map<Nat, ChangeRequest>;
-    assets : Map.Map<Nat, Asset>;
-    nextTicketId : Nat;
-    nextCommentId : Nat;
-    nextProblemId : Nat;
-    nextChangeId : Nat;
-    nextAssetId : Nat;
-    firstUserRegistered : Bool;
+  // New types for phase 3 modules
+  type ServiceCatalogItem = {
+    id : Nat;
+    name : Text;
+    category : Text;
+    description : Text;
+    slaInfo : Text;
+    isAvailable : Bool;
+    createdBy : Principal;
+    createdAt : Time.Time;
+    updatedAt : Time.Time;
   };
 
+  type KnowledgeArticle = {
+    id : Nat;
+    title : Text;
+    category : Text;
+    content : Text;
+    tags : [Text];
+    isPublished : Bool;
+    viewCount : Nat;
+    authorId : Principal;
+    createdAt : Time.Time;
+    updatedAt : Time.Time;
+  };
+
+  type SOPStatus = {
+    #Draft;
+    #Active;
+    #Archived;
+  };
+
+  type SOP = {
+    id : Nat;
+    title : Text;
+    category : Text;
+    content : Text;
+    version : Text;
+    status : SOPStatus;
+    authorId : Principal;
+    createdAt : Time.Time;
+    updatedAt : Time.Time;
+  };
+
+  // New actor state with phase 3 additions
+  type NewActor = OldActor and {
+    serviceCatalog : Map.Map<Nat, ServiceCatalogItem>;
+    knowledgeBase : Map.Map<Nat, KnowledgeArticle>;
+    sops : Map.Map<Nat, SOP>;
+    nextServiceId : Nat;
+    nextArticleId : Nat;
+    nextSopId : Nat;
+  };
+
+  // Migration function: preserve existing state, initialize new variables
   public func run(old : OldActor) : NewActor {
     {
       old with
-      problems = Map.empty<Nat, ProblemRecord>();
-      changes = Map.empty<Nat, ChangeRequest>();
-      assets = Map.empty<Nat, Asset>();
-      nextProblemId = 1;
-      nextChangeId = 1;
-      nextAssetId = 1;
+      serviceCatalog = Map.empty<Nat, ServiceCatalogItem>();
+      knowledgeBase = Map.empty<Nat, KnowledgeArticle>();
+      sops = Map.empty<Nat, SOP>();
+      nextServiceId = 1;
+      nextArticleId = 1;
+      nextSopId = 1;
     };
   };
 };

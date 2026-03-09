@@ -8,8 +8,12 @@ import type {
   ChangeStatus,
   ChangeType,
   ImpactLevel,
+  KnowledgeArticleFilter,
   ProblemFilter,
   ProblemStatus,
+  SOPFilter,
+  SOPStatus,
+  ServiceCatalogFilter,
   TicketFilter,
   TicketPriority,
   TicketStatus,
@@ -704,6 +708,356 @@ export function useDeleteAsset() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["assets"] });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+    },
+  });
+}
+
+// ── Service Catalog ───────────────────────────────────────────────
+
+export function useListServiceCatalogItems(filter: ServiceCatalogFilter) {
+  const { actor, isFetching } = useActor();
+  return useQuery({
+    queryKey: ["serviceCatalog", filter],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.listServiceCatalogItems(filter);
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useGetServiceCatalogItem(id: bigint | null) {
+  const { actor, isFetching } = useActor();
+  return useQuery({
+    queryKey: ["serviceCatalogItem", id?.toString()],
+    queryFn: async () => {
+      if (!actor || id === null) return null;
+      return actor.getServiceCatalogItem(id);
+    },
+    enabled: !!actor && !isFetching && id !== null,
+  });
+}
+
+export function useCreateServiceCatalogItem() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      name,
+      category,
+      description,
+      slaInfo,
+      isAvailable,
+    }: {
+      name: string;
+      category: string;
+      description: string;
+      slaInfo: string;
+      isAvailable: boolean;
+    }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.createServiceCatalogItem(
+        name,
+        category,
+        description,
+        slaInfo,
+        isAvailable,
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["serviceCatalog"] });
+    },
+  });
+}
+
+export function useUpdateServiceCatalogItem() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      name,
+      category,
+      description,
+      slaInfo,
+      isAvailable,
+    }: {
+      id: bigint;
+      name: string;
+      category: string;
+      description: string;
+      slaInfo: string;
+      isAvailable: boolean;
+    }) => {
+      if (!actor) throw new Error("Not connected");
+      await actor.updateServiceCatalogItem(
+        id,
+        name,
+        category,
+        description,
+        slaInfo,
+        isAvailable,
+      );
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["serviceCatalogItem", variables.id.toString()],
+      });
+      queryClient.invalidateQueries({ queryKey: ["serviceCatalog"] });
+    },
+  });
+}
+
+export function useDeleteServiceCatalogItem() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: bigint) => {
+      if (!actor) throw new Error("Not connected");
+      await actor.deleteServiceCatalogItem(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["serviceCatalog"] });
+    },
+  });
+}
+
+export function useRequestFromCatalog() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      itemId,
+      details,
+    }: { itemId: bigint; details: string }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.requestFromCatalog(itemId, details);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+    },
+  });
+}
+
+// ── Knowledge Base ────────────────────────────────────────────────
+
+export function useListKnowledgeArticles(filter: KnowledgeArticleFilter) {
+  const { actor, isFetching } = useActor();
+  return useQuery({
+    queryKey: ["knowledgeArticles", filter],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.listKnowledgeArticles(filter);
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useGetKnowledgeArticle(id: bigint | null) {
+  const { actor, isFetching } = useActor();
+  return useQuery({
+    queryKey: ["knowledgeArticle", id?.toString()],
+    queryFn: async () => {
+      if (!actor || id === null) return null;
+      return actor.getKnowledgeArticle(id);
+    },
+    enabled: !!actor && !isFetching && id !== null,
+  });
+}
+
+export function useCreateKnowledgeArticle() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      title,
+      category,
+      content,
+      tags,
+      isPublished,
+    }: {
+      title: string;
+      category: string;
+      content: string;
+      tags: string[];
+      isPublished: boolean;
+    }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.createKnowledgeArticle(
+        title,
+        category,
+        content,
+        tags,
+        isPublished,
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["knowledgeArticles"] });
+    },
+  });
+}
+
+export function useUpdateKnowledgeArticle() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      title,
+      category,
+      content,
+      tags,
+      isPublished,
+    }: {
+      id: bigint;
+      title: string;
+      category: string;
+      content: string;
+      tags: string[];
+      isPublished: boolean;
+    }) => {
+      if (!actor) throw new Error("Not connected");
+      await actor.updateKnowledgeArticle(
+        id,
+        title,
+        category,
+        content,
+        tags,
+        isPublished,
+      );
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["knowledgeArticle", variables.id.toString()],
+      });
+      queryClient.invalidateQueries({ queryKey: ["knowledgeArticles"] });
+    },
+  });
+}
+
+export function useDeleteKnowledgeArticle() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: bigint) => {
+      if (!actor) throw new Error("Not connected");
+      await actor.deleteKnowledgeArticle(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["knowledgeArticles"] });
+    },
+  });
+}
+
+// ── SOPs ──────────────────────────────────────────────────────────
+
+export function useListSOPs(filter: SOPFilter) {
+  const { actor, isFetching } = useActor();
+  return useQuery({
+    queryKey: ["sops", filter],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.listSOPs(filter);
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useGetSOP(id: bigint | null) {
+  const { actor, isFetching } = useActor();
+  return useQuery({
+    queryKey: ["sop", id?.toString()],
+    queryFn: async () => {
+      if (!actor || id === null) return null;
+      return actor.getSOP(id);
+    },
+    enabled: !!actor && !isFetching && id !== null,
+  });
+}
+
+export function useCreateSOP() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      title,
+      category,
+      content,
+      version,
+      status,
+    }: {
+      title: string;
+      category: string;
+      content: string;
+      version: string;
+      status: SOPStatus;
+    }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.createSOP(title, category, content, version, status);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sops"] });
+    },
+  });
+}
+
+export function useUpdateSOP() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      title,
+      category,
+      content,
+      version,
+    }: {
+      id: bigint;
+      title: string;
+      category: string;
+      content: string;
+      version: string;
+    }) => {
+      if (!actor) throw new Error("Not connected");
+      await actor.updateSOP(id, title, category, content, version);
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["sop", variables.id.toString()],
+      });
+      queryClient.invalidateQueries({ queryKey: ["sops"] });
+    },
+  });
+}
+
+export function useUpdateSOPStatus() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, status }: { id: bigint; status: SOPStatus }) => {
+      if (!actor) throw new Error("Not connected");
+      await actor.updateSOPStatus(id, status);
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["sop", variables.id.toString()],
+      });
+      queryClient.invalidateQueries({ queryKey: ["sops"] });
+    },
+  });
+}
+
+export function useDeleteSOP() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: bigint) => {
+      if (!actor) throw new Error("Not connected");
+      await actor.deleteSOP(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sops"] });
     },
   });
 }

@@ -120,6 +120,22 @@ export interface DashboardStats {
 export type ImpactLevel = { 'Low' : null } |
   { 'High' : null } |
   { 'Medium' : null };
+export interface KnowledgeArticle {
+  'id' : bigint,
+  'title' : string,
+  'content' : string,
+  'isPublished' : boolean,
+  'authorId' : Principal,
+  'createdAt' : Time,
+  'tags' : Array<string>,
+  'updatedAt' : Time,
+  'viewCount' : bigint,
+  'category' : string,
+}
+export interface KnowledgeArticleFilter {
+  'isPublished' : [] | [boolean],
+  'category' : [] | [string],
+}
 export interface ProblemFilter {
   'status' : [] | [ProblemStatus],
   'category' : [] | [string],
@@ -149,6 +165,39 @@ export type ProblemStatus = { 'InAnalysis' : null } |
 export type RiskLevel = { 'Low' : null } |
   { 'High' : null } |
   { 'Medium' : null };
+export interface SOP {
+  'id' : bigint,
+  'status' : SOPStatus,
+  'title' : string,
+  'content' : string,
+  'authorId' : Principal,
+  'createdAt' : Time,
+  'version' : string,
+  'updatedAt' : Time,
+  'category' : string,
+}
+export interface SOPFilter {
+  'status' : [] | [SOPStatus],
+  'category' : [] | [string],
+}
+export type SOPStatus = { 'Active' : null } |
+  { 'Draft' : null } |
+  { 'Archived' : null };
+export interface ServiceCatalogFilter {
+  'isAvailable' : [] | [boolean],
+  'category' : [] | [string],
+}
+export interface ServiceCatalogItem {
+  'id' : bigint,
+  'name' : string,
+  'createdAt' : Time,
+  'createdBy' : Principal,
+  'isAvailable' : boolean,
+  'description' : string,
+  'updatedAt' : Time,
+  'category' : string,
+  'slaInfo' : string,
+}
 export interface Ticket {
   'id' : bigint,
   'status' : TicketStatus,
@@ -240,8 +289,20 @@ export interface _SERVICE {
     ],
     bigint
   >,
+  'createKnowledgeArticle' : ActorMethod<
+    [string, string, string, Array<string>, boolean],
+    bigint
+  >,
   'createProblem' : ActorMethod<
     [string, string, string, TicketPriority],
+    bigint
+  >,
+  'createSOP' : ActorMethod<
+    [string, string, string, string, SOPStatus],
+    bigint
+  >,
+  'createServiceCatalogItem' : ActorMethod<
+    [string, string, string, string, boolean],
     bigint
   >,
   'createTicket' : ActorMethod<
@@ -249,23 +310,39 @@ export interface _SERVICE {
     bigint
   >,
   'deleteAsset' : ActorMethod<[bigint], undefined>,
+  'deleteKnowledgeArticle' : ActorMethod<[bigint], undefined>,
+  'deleteSOP' : ActorMethod<[bigint], undefined>,
+  'deleteServiceCatalogItem' : ActorMethod<[bigint], undefined>,
   'getAllUsers' : ActorMethod<[], Array<User>>,
   'getAsset' : ActorMethod<[bigint], Asset>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole__1>,
   'getChangeRequest' : ActorMethod<[bigint], ChangeRequest>,
   'getDashboardStats' : ActorMethod<[], DashboardStats>,
+  'getKnowledgeArticle' : ActorMethod<[bigint], KnowledgeArticle>,
   'getMyProfile' : ActorMethod<[], [] | [User]>,
   'getProblem' : ActorMethod<[bigint], ProblemRecord>,
+  'getSOP' : ActorMethod<[bigint], SOP>,
+  'getServiceCatalogItem' : ActorMethod<[bigint], ServiceCatalogItem>,
   'getTicket' : ActorMethod<[bigint], Ticket>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'listAssets' : ActorMethod<[AssetFilter], Array<Asset>>,
   'listChangeRequests' : ActorMethod<[ChangeFilter], Array<ChangeRequest>>,
+  'listKnowledgeArticles' : ActorMethod<
+    [KnowledgeArticleFilter],
+    Array<KnowledgeArticle>
+  >,
   'listProblems' : ActorMethod<[ProblemFilter], Array<ProblemRecord>>,
+  'listSOPs' : ActorMethod<[SOPFilter], Array<SOP>>,
+  'listServiceCatalogItems' : ActorMethod<
+    [ServiceCatalogFilter],
+    Array<ServiceCatalogItem>
+  >,
   'listTickets' : ActorMethod<[TicketFilter], Array<Ticket>>,
   'registerUser' : ActorMethod<[string, string], undefined>,
   'rejectChange' : ActorMethod<[bigint, [] | [string]], undefined>,
+  'requestFromCatalog' : ActorMethod<[bigint, string], bigint>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'submitChangeForApproval' : ActorMethod<[bigint], undefined>,
   'updateAsset' : ActorMethod<
@@ -289,6 +366,10 @@ export interface _SERVICE {
   >,
   'updateAssetStatus' : ActorMethod<[bigint, AssetStatus], undefined>,
   'updateChangeStatus' : ActorMethod<[bigint, ChangeStatus], undefined>,
+  'updateKnowledgeArticle' : ActorMethod<
+    [bigint, string, string, string, Array<string>, boolean],
+    undefined
+  >,
   'updateProblemDetails' : ActorMethod<
     [
       bigint,
@@ -302,6 +383,15 @@ export interface _SERVICE {
     undefined
   >,
   'updateProblemStatus' : ActorMethod<[bigint, ProblemStatus], undefined>,
+  'updateSOP' : ActorMethod<
+    [bigint, string, string, string, string],
+    undefined
+  >,
+  'updateSOPStatus' : ActorMethod<[bigint, SOPStatus], undefined>,
+  'updateServiceCatalogItem' : ActorMethod<
+    [bigint, string, string, string, string, boolean],
+    undefined
+  >,
   'updateTicketStatus' : ActorMethod<[bigint, TicketStatus], undefined>,
   'updateUserRole' : ActorMethod<[Principal, UserRole], undefined>,
 }

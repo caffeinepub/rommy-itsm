@@ -16,10 +16,13 @@ import { AssetsPage } from "./pages/AssetsPage";
 import { ChangeDetailPage } from "./pages/ChangeDetailPage";
 import { ChangesPage } from "./pages/ChangesPage";
 import { DashboardPage } from "./pages/DashboardPage";
+import { KnowledgeBasePage } from "./pages/KnowledgeBasePage";
 import { LoginPage } from "./pages/LoginPage";
 import { ProblemDetailPage } from "./pages/ProblemDetailPage";
 import { ProblemsPage } from "./pages/ProblemsPage";
 import { ProfilePage } from "./pages/ProfilePage";
+import { SOPsPage } from "./pages/SOPsPage";
+import { ServiceCatalogPage } from "./pages/ServiceCatalogPage";
 import { TicketDetailPage } from "./pages/TicketDetailPage";
 import { TicketsPage } from "./pages/TicketsPage";
 import { UsersPage } from "./pages/UsersPage";
@@ -230,6 +233,36 @@ const assetDetailRoute = createRoute({
   ),
 });
 
+const serviceCatalogRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/service-catalog",
+  component: () => (
+    <AuthGuard>
+      <ServiceCatalogPage />
+    </AuthGuard>
+  ),
+});
+
+const knowledgeBaseRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/knowledge-base",
+  component: () => (
+    <AuthGuard>
+      <KnowledgeBasePage />
+    </AuthGuard>
+  ),
+});
+
+const sopsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/sops",
+  component: () => (
+    <AuthGuard>
+      <SOPsPage />
+    </AuthGuard>
+  ),
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   dashboardRoute,
@@ -243,6 +276,9 @@ const routeTree = rootRoute.addChildren([
   changeDetailRoute,
   assetsRoute,
   assetDetailRoute,
+  serviceCatalogRoute,
+  knowledgeBaseRoute,
+  sopsRoute,
   usersRoute,
   profileRoute,
 ]);

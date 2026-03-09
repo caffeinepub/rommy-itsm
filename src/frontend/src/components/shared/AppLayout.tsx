@@ -5,13 +5,16 @@ import { Separator } from "@/components/ui/separator";
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   AlertTriangle,
+  BookOpen,
   ChevronLeft,
+  FileText,
   GitBranch,
   LayoutDashboard,
   LogOut,
   Menu,
   Package,
   Shield,
+  ShoppingBag,
   ShoppingCart,
   User,
   Users,
@@ -66,6 +69,24 @@ const navItems: NavItem[] = [
     label: "Assets (CMDB)",
     icon: <Package className="h-4 w-4" />,
     ocid: "nav.assets_link",
+  },
+  {
+    to: "/service-catalog",
+    label: "Service Catalog",
+    icon: <ShoppingBag className="h-4 w-4" />,
+    ocid: "nav.service_catalog_link",
+  },
+  {
+    to: "/knowledge-base",
+    label: "Knowledge Base",
+    icon: <BookOpen className="h-4 w-4" />,
+    ocid: "nav.knowledge_base_link",
+  },
+  {
+    to: "/sops",
+    label: "SOPs & Process",
+    icon: <FileText className="h-4 w-4" />,
+    ocid: "nav.sops_link",
   },
   {
     to: "/users",
