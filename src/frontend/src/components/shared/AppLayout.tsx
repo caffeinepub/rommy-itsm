@@ -156,11 +156,11 @@ const roleLabels: Record<UserRole, string> = {
 };
 
 const roleColors: Record<UserRole, string> = {
-  [UserRole.EndUser]: "bg-muted text-muted-foreground",
+  [UserRole.EndUser]: "bg-muted text-muted-foreground border-border",
   [UserRole.ITAgent]: "bg-primary/10 text-primary border-primary/20",
-  [UserRole.Manager]: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+  [UserRole.Manager]: "bg-amber-500/10 text-amber-600 border-amber-500/20",
   [UserRole.MasterAdmin]:
-    "bg-violet-500/10 text-violet-400 border-violet-500/20",
+    "bg-violet-500/10 text-violet-600 border-violet-500/20",
 };
 
 interface AppLayoutProps {
@@ -205,7 +205,7 @@ export function AppLayout({ children, title }: AppLayoutProps) {
             collapsed ? "justify-center" : ""
           }`}
         >
-          <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center">
+          <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
             <Shield className="h-4 w-4 text-primary" />
           </div>
           {!collapsed && (
@@ -285,7 +285,7 @@ export function AppLayout({ children, title }: AppLayoutProps) {
           {!collapsed && profile && (
             <div className="flex items-center gap-2 mb-3 px-1">
               <Avatar className="h-7 w-7 flex-shrink-0">
-                <AvatarFallback className="bg-primary/20 text-primary text-xs font-bold">
+                <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
                   {userInitials}
                 </AvatarFallback>
               </Avatar>
@@ -323,7 +323,7 @@ export function AppLayout({ children, title }: AppLayoutProps) {
       {/* Main Content */}
       <div className="flex flex-col flex-1 overflow-hidden">
         {/* Top Header */}
-        <header className="flex items-center h-14 px-6 border-b border-border bg-card/50 backdrop-blur-sm gap-4 flex-shrink-0">
+        <header className="flex items-center h-14 px-6 border-b border-border bg-card backdrop-blur-sm gap-4 flex-shrink-0 shadow-xs">
           {collapsed && (
             <Button
               variant="ghost"

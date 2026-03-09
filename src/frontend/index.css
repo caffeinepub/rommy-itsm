@@ -22,55 +22,55 @@
   :root {
     --radius: 0.5rem;
 
-    /* Dark Navy Enterprise theme */
-    --background: 0.16 0.022 255;
-    --foreground: 0.92 0.01 250;
-    --card: 0.19 0.025 255;
-    --card-foreground: 0.92 0.01 250;
-    --popover: 0.22 0.03 255;
-    --popover-foreground: 0.92 0.01 250;
-    --primary: 0.6 0.2 255;
-    --primary-foreground: 0.98 0 0;
-    --secondary: 0.24 0.03 255;
-    --secondary-foreground: 0.85 0.01 250;
-    --muted: 0.22 0.025 255;
-    --muted-foreground: 0.6 0.02 255;
-    --accent: 0.28 0.04 255;
-    --accent-foreground: 0.92 0.01 250;
-    --destructive: 0.6 0.22 25;
-    --destructive-foreground: 0.98 0 0;
-    --border: 0.28 0.04 255;
-    --input: 0.26 0.035 255;
-    --ring: 0.6 0.2 255;
+    /* Light Enterprise theme */
+    --background: 0.98 0.004 250;
+    --foreground: 0.15 0.02 255;
+    --card: 1 0 0;
+    --card-foreground: 0.15 0.02 255;
+    --popover: 1 0 0;
+    --popover-foreground: 0.15 0.02 255;
+    --primary: 0.48 0.2 255;
+    --primary-foreground: 0.99 0 0;
+    --secondary: 0.94 0.01 255;
+    --secondary-foreground: 0.25 0.02 255;
+    --muted: 0.95 0.008 250;
+    --muted-foreground: 0.5 0.015 255;
+    --accent: 0.93 0.012 255;
+    --accent-foreground: 0.2 0.02 255;
+    --destructive: 0.55 0.22 25;
+    --destructive-foreground: 0.99 0 0;
+    --border: 0.88 0.012 255;
+    --input: 0.9 0.01 255;
+    --ring: 0.48 0.2 255;
 
     /* Chart colors */
-    --chart-1: 0.6 0.2 255;
-    --chart-2: 0.65 0.18 160;
-    --chart-3: 0.7 0.17 55;
-    --chart-4: 0.65 0.2 30;
-    --chart-5: 0.6 0.18 300;
+    --chart-1: 0.52 0.2 255;
+    --chart-2: 0.55 0.18 160;
+    --chart-3: 0.6 0.17 55;
+    --chart-4: 0.58 0.2 30;
+    --chart-5: 0.52 0.18 300;
 
     /* Sidebar */
-    --sidebar: 0.13 0.02 255;
-    --sidebar-foreground: 0.88 0.01 250;
-    --sidebar-primary: 0.6 0.2 255;
-    --sidebar-primary-foreground: 0.98 0 0;
-    --sidebar-accent: 0.22 0.035 255;
-    --sidebar-accent-foreground: 0.92 0.01 250;
-    --sidebar-border: 0.22 0.03 255;
-    --sidebar-ring: 0.6 0.2 255;
+    --sidebar: 0.97 0.006 255;
+    --sidebar-foreground: 0.2 0.02 255;
+    --sidebar-primary: 0.48 0.2 255;
+    --sidebar-primary-foreground: 0.99 0 0;
+    --sidebar-accent: 0.93 0.012 255;
+    --sidebar-accent-foreground: 0.2 0.02 255;
+    --sidebar-border: 0.88 0.012 255;
+    --sidebar-ring: 0.48 0.2 255;
 
-    /* Status colors - custom tokens */
-    --status-open: 0.55 0.18 250;
-    --status-inprogress: 0.65 0.2 300;
-    --status-resolved: 0.62 0.18 145;
-    --status-closed: 0.5 0.02 250;
+    /* Status colors */
+    --status-open: 0.45 0.18 250;
+    --status-inprogress: 0.48 0.2 290;
+    --status-resolved: 0.5 0.18 145;
+    --status-closed: 0.45 0.02 250;
 
     /* Priority colors */
-    --priority-critical: 0.6 0.22 25;
-    --priority-high: 0.65 0.18 50;
-    --priority-medium: 0.72 0.16 90;
-    --priority-low: 0.62 0.18 145;
+    --priority-critical: 0.52 0.22 25;
+    --priority-high: 0.55 0.18 50;
+    --priority-medium: 0.58 0.16 80;
+    --priority-low: 0.5 0.18 145;
   }
 
   * {
@@ -78,7 +78,7 @@
   }
 
   html {
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   body {
@@ -98,59 +98,59 @@
 
 @layer utilities {
   .status-badge-open {
-    background-color: oklch(var(--status-open) / 0.15);
+    background-color: oklch(var(--status-open) / 0.12);
     color: oklch(var(--status-open));
     border: 1px solid oklch(var(--status-open) / 0.3);
   }
   .status-badge-inprogress {
-    background-color: oklch(var(--status-inprogress) / 0.15);
+    background-color: oklch(var(--status-inprogress) / 0.12);
     color: oklch(var(--status-inprogress));
     border: 1px solid oklch(var(--status-inprogress) / 0.3);
   }
   .status-badge-resolved {
-    background-color: oklch(var(--status-resolved) / 0.15);
+    background-color: oklch(var(--status-resolved) / 0.12);
     color: oklch(var(--status-resolved));
     border: 1px solid oklch(var(--status-resolved) / 0.3);
   }
   .status-badge-closed {
-    background-color: oklch(var(--status-closed) / 0.15);
+    background-color: oklch(var(--status-closed) / 0.1);
     color: oklch(var(--status-closed));
-    border: 1px solid oklch(var(--status-closed) / 0.3);
+    border: 1px solid oklch(var(--status-closed) / 0.25);
   }
   .priority-badge-critical {
-    background-color: oklch(var(--priority-critical) / 0.15);
+    background-color: oklch(var(--priority-critical) / 0.12);
     color: oklch(var(--priority-critical));
     border: 1px solid oklch(var(--priority-critical) / 0.3);
   }
   .priority-badge-high {
-    background-color: oklch(var(--priority-high) / 0.15);
+    background-color: oklch(var(--priority-high) / 0.12);
     color: oklch(var(--priority-high));
     border: 1px solid oklch(var(--priority-high) / 0.3);
   }
   .priority-badge-medium {
-    background-color: oklch(var(--priority-medium) / 0.15);
+    background-color: oklch(var(--priority-medium) / 0.12);
     color: oklch(var(--priority-medium));
     border: 1px solid oklch(var(--priority-medium) / 0.3);
   }
   .priority-badge-low {
-    background-color: oklch(var(--priority-low) / 0.15);
+    background-color: oklch(var(--priority-low) / 0.12);
     color: oklch(var(--priority-low));
     border: 1px solid oklch(var(--priority-low) / 0.3);
   }
 
   .nav-link-active {
-    background-color: oklch(var(--primary) / 0.15);
+    background-color: oklch(var(--primary) / 0.1);
     color: oklch(var(--primary));
     border-left: 3px solid oklch(var(--primary));
   }
 
   .glass-card {
-    background: oklch(var(--card) / 0.8);
+    background: oklch(var(--card) / 0.9);
     backdrop-filter: blur(12px);
-    border: 1px solid oklch(var(--border) / 0.6);
+    border: 1px solid oklch(var(--border) / 0.8);
   }
 
   .stat-card-glow {
-    box-shadow: 0 0 20px oklch(var(--primary) / 0.1);
+    box-shadow: 0 0 20px oklch(var(--primary) / 0.08);
   }
 }

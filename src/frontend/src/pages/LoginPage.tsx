@@ -80,19 +80,19 @@ export function LoginPage() {
         {/* Left Panel - Branding */}
         <div className="hidden lg:flex lg:w-1/2 flex-col relative overflow-hidden">
           {/* Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[oklch(0.13_0.03_265)] via-[oklch(0.16_0.04_255)] to-[oklch(0.12_0.025_270)]" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary to-primary/80" />
           {/* Grid pattern */}
           <div
-            className="absolute inset-0 opacity-[0.03]"
+            className="absolute inset-0 opacity-[0.06]"
             style={{
               backgroundImage:
-                "linear-gradient(oklch(0.92 0.01 250) 1px, transparent 1px), linear-gradient(90deg, oklch(0.92 0.01 250) 1px, transparent 1px)",
+                "linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)",
               backgroundSize: "40px 40px",
             }}
           />
           {/* Glow orb */}
-          <div className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
-          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full bg-violet-500/8 blur-3xl pointer-events-none" />
+          <div className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full bg-white/10 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full bg-white/8 blur-3xl pointer-events-none" />
 
           <div className="relative flex flex-col h-full p-12 justify-between">
             {/* Logo */}
@@ -102,10 +102,10 @@ export function LoginPage() {
               transition={{ duration: 0.5 }}
               className="flex items-center gap-3"
             >
-              <div className="w-10 h-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
-                <Shield className="h-5 w-5 text-primary" />
+              <div className="w-10 h-10 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center">
+                <Shield className="h-5 w-5 text-white" />
               </div>
-              <span className="font-display text-xl font-bold text-foreground">
+              <span className="font-display text-xl font-bold text-white">
                 Rommy ITSM
               </span>
             </motion.div>
@@ -117,14 +117,14 @@ export function LoginPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="space-y-6"
             >
-              <h2 className="font-display text-4xl font-bold text-foreground leading-tight">
+              <h2 className="font-display text-4xl font-bold text-white leading-tight">
                 Enterprise IT Service
                 <br />
-                <span className="text-primary">Management</span>
+                <span className="text-white/80">Management</span>
                 <br />
                 Reimagined
               </h2>
-              <p className="text-muted-foreground text-base max-w-sm leading-relaxed">
+              <p className="text-white/70 text-base max-w-sm leading-relaxed">
                 Streamline your IT operations with intelligent incident
                 tracking, automated workflows, and real-time SLA monitoring.
               </p>
@@ -145,12 +145,12 @@ export function LoginPage() {
                   transition={{ delay: 0.5 + i * 0.1 }}
                   className="flex items-start gap-3"
                 >
-                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <CheckCircle2 className="h-4 w-4 text-white mt-0.5 flex-shrink-0" />
                   <div>
-                    <span className="text-sm font-semibold text-foreground">
+                    <span className="text-sm font-semibold text-white">
                       {f.label}
                     </span>
-                    <span className="text-muted-foreground text-sm ml-2">
+                    <span className="text-white/70 text-sm ml-2">
                       — {f.desc}
                     </span>
                   </div>
@@ -161,8 +161,7 @@ export function LoginPage() {
         </div>
 
         {/* Right Panel - Login Form */}
-        <div className="flex-1 flex items-center justify-center p-8 relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-card" />
+        <div className="flex-1 flex items-center justify-center p-8 relative bg-background">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -171,7 +170,7 @@ export function LoginPage() {
           >
             {/* Mobile logo */}
             <div className="lg:hidden flex items-center gap-3 justify-center mb-8">
-              <div className="w-10 h-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
                 <Shield className="h-5 w-5 text-primary" />
               </div>
               <span className="font-display text-xl font-bold text-foreground">
@@ -189,8 +188,8 @@ export function LoginPage() {
             </div>
 
             {/* Login Card */}
-            <div className="bg-card border border-border rounded-xl p-8 space-y-6 shadow-glow">
-              <div className="flex items-center gap-3 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+            <div className="bg-card border border-border rounded-xl p-8 space-y-6 shadow-sm">
+              <div className="flex items-center gap-3 p-4 bg-primary/5 border border-primary/15 rounded-lg">
                 <Layers className="h-5 w-5 text-primary flex-shrink-0" />
                 <div>
                   <p className="text-sm font-semibold text-foreground">

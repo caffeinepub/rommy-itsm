@@ -62,7 +62,7 @@ function StatCard({
     >
       <Card
         data-ocid={ocid}
-        className="bg-card border-border hover:border-primary/30 transition-all duration-200 stat-card-glow"
+        className="bg-card border-border hover:border-primary/30 hover:shadow-sm transition-all duration-200"
       >
         <CardContent className="p-5">
           <div className="flex items-center justify-between mb-3">
@@ -151,8 +151,8 @@ export function DashboardPage() {
                   title="Total Open"
                   value={open}
                   icon={<Inbox className="h-4 w-4" />}
-                  color="text-blue-400"
-                  bgColor="bg-blue-500/10"
+                  color="text-blue-600"
+                  bgColor="bg-blue-50"
                   ocid="dashboard.open_card"
                   delay={0}
                 />
@@ -160,8 +160,8 @@ export function DashboardPage() {
                   title="In Progress"
                   value={inProgress}
                   icon={<Activity className="h-4 w-4" />}
-                  color="text-violet-400"
-                  bgColor="bg-violet-500/10"
+                  color="text-violet-600"
+                  bgColor="bg-violet-50"
                   ocid="dashboard.inprogress_card"
                   delay={0.05}
                 />
@@ -169,8 +169,8 @@ export function DashboardPage() {
                   title="Resolved"
                   value={resolved}
                   icon={<CheckCircle2 className="h-4 w-4" />}
-                  color="text-emerald-400"
-                  bgColor="bg-emerald-500/10"
+                  color="text-emerald-600"
+                  bgColor="bg-emerald-50"
                   ocid="dashboard.resolved_card"
                   delay={0.1}
                 />
@@ -178,8 +178,8 @@ export function DashboardPage() {
                   title="Closed"
                   value={closed}
                   icon={<XCircle className="h-4 w-4" />}
-                  color="text-muted-foreground"
-                  bgColor="bg-muted/50"
+                  color="text-slate-500"
+                  bgColor="bg-slate-100"
                   ocid="dashboard.closed_card"
                   delay={0.15}
                 />
@@ -213,8 +213,8 @@ export function DashboardPage() {
                   title="Problems Open"
                   value={problemOpen}
                   icon={<Zap className="h-4 w-4" />}
-                  color="text-yellow-400"
-                  bgColor="bg-yellow-500/10"
+                  color="text-yellow-600"
+                  bgColor="bg-yellow-50"
                   ocid="dashboard.problem_open_card"
                   delay={0.2}
                 />
@@ -222,8 +222,8 @@ export function DashboardPage() {
                   title="In Analysis"
                   value={problemInAnalysis}
                   icon={<AlertCircle className="h-4 w-4" />}
-                  color="text-orange-400"
-                  bgColor="bg-orange-500/10"
+                  color="text-orange-600"
+                  bgColor="bg-orange-50"
                   ocid="dashboard.problem_analysis_card"
                   delay={0.22}
                 />
@@ -231,8 +231,8 @@ export function DashboardPage() {
                   title="Prob. Resolved"
                   value={problemResolved}
                   icon={<CheckCircle2 className="h-4 w-4" />}
-                  color="text-emerald-400"
-                  bgColor="bg-emerald-500/10"
+                  color="text-emerald-600"
+                  bgColor="bg-emerald-50"
                   ocid="dashboard.problem_resolved_card"
                   delay={0.24}
                 />
@@ -250,8 +250,8 @@ export function DashboardPage() {
                   title="Pending Approval"
                   value={changePendingApproval}
                   icon={<Clock className="h-4 w-4" />}
-                  color="text-violet-400"
-                  bgColor="bg-violet-500/10"
+                  color="text-violet-600"
+                  bgColor="bg-violet-50"
                   ocid="dashboard.change_pending_card"
                   delay={0.28}
                 />
@@ -259,8 +259,8 @@ export function DashboardPage() {
                   title="Chg. Completed"
                   value={changeCompleted}
                   icon={<CheckCircle2 className="h-4 w-4" />}
-                  color="text-teal-400"
-                  bgColor="bg-teal-500/10"
+                  color="text-teal-600"
+                  bgColor="bg-teal-50"
                   ocid="dashboard.change_completed_card"
                   delay={0.3}
                 />
@@ -269,8 +269,8 @@ export function DashboardPage() {
                   title="Assets Active"
                   value={assetActive}
                   icon={<Package className="h-4 w-4" />}
-                  color="text-emerald-400"
-                  bgColor="bg-emerald-500/10"
+                  color="text-emerald-600"
+                  bgColor="bg-emerald-50"
                   ocid="dashboard.asset_active_card"
                   delay={0.32}
                 />
@@ -278,8 +278,8 @@ export function DashboardPage() {
                   title="Assets Inactive"
                   value={assetInactive}
                   icon={<Package className="h-4 w-4" />}
-                  color="text-muted-foreground"
-                  bgColor="bg-muted/50"
+                  color="text-slate-500"
+                  bgColor="bg-slate-100"
                   ocid="dashboard.asset_inactive_card"
                   delay={0.34}
                 />
@@ -287,8 +287,8 @@ export function DashboardPage() {
                   title="In Maintenance"
                   value={assetMaintenance}
                   icon={<Activity className="h-4 w-4" />}
-                  color="text-yellow-400"
-                  bgColor="bg-yellow-500/10"
+                  color="text-yellow-600"
+                  bgColor="bg-yellow-50"
                   ocid="dashboard.asset_maintenance_card"
                   delay={0.36}
                 />
@@ -308,7 +308,7 @@ export function DashboardPage() {
             <Card className="bg-card border-border">
               <CardHeader className="pb-3">
                 <CardTitle className="font-display text-sm font-semibold flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-amber-400" />
+                  <AlertTriangle className="h-4 w-4 text-amber-500" />
                   Incidents
                 </CardTitle>
               </CardHeader>
@@ -325,22 +325,22 @@ export function DashboardPage() {
                       {
                         label: "Open",
                         value: incidentOpen,
-                        color: "text-blue-400",
+                        color: "text-blue-600",
                       },
                       {
                         label: "In Progress",
                         value: incidentIP,
-                        color: "text-violet-400",
+                        color: "text-violet-600",
                       },
                       {
                         label: "Resolved",
                         value: incidentResolved,
-                        color: "text-emerald-400",
+                        color: "text-emerald-600",
                       },
                       {
                         label: "Closed",
                         value: incidentClosed,
-                        color: "text-muted-foreground",
+                        color: "text-slate-500",
                       },
                     ].map((row) => (
                       <div
@@ -386,21 +386,21 @@ export function DashboardPage() {
                 ) : (
                   <div className="space-y-2">
                     {[
-                      { label: "Open", value: srOpen, color: "text-blue-400" },
+                      { label: "Open", value: srOpen, color: "text-blue-600" },
                       {
                         label: "In Progress",
                         value: srIP,
-                        color: "text-violet-400",
+                        color: "text-violet-600",
                       },
                       {
                         label: "Resolved",
                         value: srResolved,
-                        color: "text-emerald-400",
+                        color: "text-emerald-600",
                       },
                       {
                         label: "Closed",
                         value: srClosed,
-                        color: "text-muted-foreground",
+                        color: "text-slate-500",
                       },
                     ].map((row) => (
                       <div
@@ -494,7 +494,7 @@ export function DashboardPage() {
                           <TableRow
                             key={ticket.id.toString()}
                             data-ocid={`dashboard.row.${idx + 1}`}
-                            className="border-border hover:bg-accent/30 cursor-pointer"
+                            className="border-border hover:bg-accent/50 cursor-pointer"
                           >
                             <TableCell className="text-xs font-mono text-muted-foreground">
                               #{ticket.id.toString()}
@@ -517,8 +517,8 @@ export function DashboardPage() {
                                 variant="outline"
                                 className={`text-xs border ${
                                   ticket.ticketType === TicketType.Incident
-                                    ? "border-amber-500/30 text-amber-400 bg-amber-500/10"
-                                    : "border-primary/30 text-primary bg-primary/10"
+                                    ? "border-amber-500/30 text-amber-600 bg-amber-50"
+                                    : "border-primary/30 text-primary bg-primary/5"
                                 }`}
                               >
                                 {ticket.ticketType === TicketType.Incident
